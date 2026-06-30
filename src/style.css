@@ -1,0 +1,804 @@
+:root {
+  --bg: #0b0e14;
+  --surface: #131722;
+  --surface-alt: #181d2a;
+  --border: #232a3a;
+  --text: #e7eaf2;
+  --text-muted: #9aa3b8;
+  --accent: #7dd3fc;
+  --accent-soft: rgba(125, 211, 252, 0.12);
+  --success: #6ee7b7;
+  --error: #fca5a5;
+  --font-heading: "Georgia", "Times New Roman", serif;
+  --font-body: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --max-width: 1100px;
+  --radius: 10px;
+  --transition: 180ms ease;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  position: relative;
+  background-color: #04060d;
+  color: var(--text);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* The sky gradient spans the FULL document height (not the viewport), so it
+   scrolls with the page: deep space at the top of the page fading down to a
+   warm dawn horizon at the very bottom, where the Three.js grass + tree sit.
+   On a tall tab you scroll down through the sky to reach the field. */
+#sky-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    #04060d 0%,
+    #060e22 24%,
+    #0b1d3c 46%,
+    #1c3f68 66%,
+    #355f8c 80%,
+    #5c82a6 88%,
+    #9a7f72 95%,
+    #c89a76 100%
+  );
+  background-size: 100% 100%;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  margin: 0 0 0.5em;
+  line-height: 1.2;
+}
+
+p {
+  margin: 0 0 1em;
+  color: var(--text-muted);
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+img,
+video {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* 3D background canvas — a fixed, full-viewport layer that sits over the CSS
+   sky gradient (#sky-bg) and under the page content. Alpha so the gradient
+   shows through; it renders the stars, swaying grass, and the tree. The field
+   is positioned in JS to track the bottom of the document as you scroll. */
+#bg-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+  pointer-events: none;
+}
+
+#app-root {
+  position: relative;
+  z-index: 2;
+}
+
+.section-inner,
+.nav-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.section {
+  padding: 80px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.section-heading {
+  font-size: 2rem;
+}
+
+.section-subheading {
+  color: var(--text-muted);
+  font-size: 1rem;
+  margin-top: -0.5em;
+  margin-bottom: 1.5em;
+}
+
+h3.section-subheading {
+  font-family: var(--font-heading);
+  color: var(--text);
+  font-size: 1.2rem;
+  margin-top: 2em;
+}
+
+.btn {
+  display: inline-block;
+  padding: 12px 24px;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  font-weight: 600;
+  transition: transform var(--transition), background var(--transition), border-color var(--transition);
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #08111a;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.btn-secondary:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ---------- Nav ---------- */
+.site-nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(11, 14, 20, 0.85);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+}
+
+.nav-brand {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-links {
+  display: flex;
+  gap: 6px;
+}
+
+/* Tab-style nav buttons: a generous padded hit area so they're easy to click,
+   with a clear highlighted state for the tab you're currently on. */
+.nav-links a {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 10px 16px;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  transition: color var(--transition), background var(--transition), border-color var(--transition);
+}
+
+.nav-links a:hover {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.nav-links a.active {
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Segmented language switch: both EN and ES are always shown, the active one
+   is filled in, so it's clear which language is active and what you'd switch to. */
+.lang-switch {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.lang-option {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition: background var(--transition), color var(--transition);
+}
+
+.lang-option:hover {
+  color: var(--accent);
+}
+
+.lang-option.active {
+  background: var(--accent);
+  color: #08111a;
+}
+
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  background: none;
+  border: none;
+  padding: 8px;
+}
+
+.nav-toggle span {
+  width: 20px;
+  height: 2px;
+  background: var(--text);
+  display: block;
+}
+
+/* ---------- Hero ---------- */
+.hero {
+  padding: 140px 0 100px;
+  border-bottom: 1px solid var(--border);
+}
+
+.hero-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.hero-kicker {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0.5em;
+}
+
+.hero-name {
+  font-size: clamp(2.4rem, 6vw, 4rem);
+  margin-bottom: 0.3em;
+}
+
+.hero-tagline {
+  font-size: 1.15rem;
+  max-width: 640px;
+  margin-bottom: 0.5em;
+}
+
+.hero-location {
+  font-size: 0.9rem;
+  margin-bottom: 1.5em;
+}
+
+/* ---------- About ---------- */
+.about-inner {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 48px;
+  align-items: start;
+}
+
+.about-portrait {
+  width: 220px;
+  height: 220px;
+  object-fit: cover;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+
+/* ---------- Experience ---------- */
+.experience-list {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.experience-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px 16px;
+  margin-bottom: 0.8em;
+}
+
+.experience-meta h3 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.experience-company {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.experience-dates {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.experience-bullets li {
+  position: relative;
+  padding-left: 22px;
+  margin-bottom: 0.6em;
+  color: var(--text-muted);
+}
+
+.experience-bullets li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* ---------- Education ---------- */
+.education-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.education-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.education-item h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.3em;
+}
+
+.education-program {
+  margin: 0;
+}
+
+.education-dates {
+  white-space: nowrap;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* ---------- Portfolio ---------- */
+.filter-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 32px;
+}
+
+.filter-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 8px 18px;
+  font-size: 0.9rem;
+  transition: all var(--transition);
+}
+
+.filter-btn.active,
+.filter-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.portfolio-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.project-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform var(--transition), border-color var(--transition);
+}
+
+.project-card:hover,
+.project-card:focus-visible {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+  outline: none;
+}
+
+.card-thumb {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  background: var(--surface-alt);
+}
+
+.card-thumb-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-size: 2.5rem;
+  color: var(--text-muted);
+}
+
+.card-body {
+  padding: 20px;
+}
+
+.card-body h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.4em;
+}
+
+.card-summary {
+  font-size: 0.92rem;
+  margin-bottom: 1em;
+}
+
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 1em;
+}
+
+.card-tags li {
+  font-size: 0.75rem;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.card-link {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+/* ---------- Project detail ---------- */
+.back-link {
+  display: inline-block;
+  margin-bottom: 24px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.back-link:hover {
+  color: var(--accent);
+}
+
+.project-role {
+  color: var(--text-muted);
+}
+
+.project-tags {
+  margin-bottom: 1.5em;
+}
+
+.project-description p {
+  max-width: 720px;
+}
+
+.no-media-note {
+  font-style: italic;
+}
+
+.project-video video,
+.gallery-main {
+  width: 100%;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.project-video {
+  margin-bottom: 2em;
+}
+
+.gallery-thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.gallery-thumb-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0;
+  overflow: hidden;
+  width: 84px;
+  height: 56px;
+}
+
+.gallery-thumb-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.gallery-thumb-btn:hover {
+  border-color: var(--accent);
+}
+
+/* ---------- Skills ---------- */
+.skill-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 24px;
+  margin-bottom: 1em;
+}
+
+.skill-group h3 {
+  font-size: 1rem;
+  color: var(--accent);
+  margin-bottom: 0.6em;
+}
+
+.skill-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.skill-tags li {
+  font-size: 0.85rem;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+.soft-skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.soft-skill h4 {
+  font-size: 1rem;
+  margin-bottom: 0.3em;
+}
+
+.soft-skill p {
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.language-list {
+  display: flex;
+  gap: 24px;
+}
+
+.language-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.language-name {
+  font-weight: 600;
+}
+
+.language-level {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+/* ---------- Contact ---------- */
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  margin-bottom: 2em;
+}
+
+.contact-links {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.contact-link {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  transition: border-color var(--transition);
+}
+
+.contact-link:hover {
+  border-color: var(--accent);
+}
+
+.contact-link strong {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+
+.contact-form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.contact-form-fields label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.contact-form-fields input,
+.contact-form-fields textarea {
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+
+.contact-form-fields input:focus,
+.contact-form-fields textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.contact-form-fields button {
+  margin-top: 8px;
+  align-self: flex-start;
+}
+
+.form-status {
+  font-size: 0.88rem;
+  min-height: 1.2em;
+}
+
+.form-status-success {
+  color: var(--success);
+}
+
+.form-status-error {
+  color: var(--error);
+}
+
+.form-status-info {
+  color: var(--text-muted);
+}
+
+.cv-download {
+  border-top: 1px solid var(--border);
+  padding-top: 24px;
+}
+
+/* ---------- Footer ---------- */
+.site-footer {
+  text-align: center;
+  padding: 32px 24px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 860px) {
+  .about-inner {
+    grid-template-columns: 1fr;
+  }
+
+  .about-portrait {
+    width: 140px;
+    height: 140px;
+  }
+
+  .contact-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .nav-links {
+    position: absolute;
+    top: 64px;
+    left: 0;
+    right: 0;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    flex-direction: column;
+    padding: 16px 24px;
+    gap: 16px;
+    display: none;
+  }
+
+  .nav-toggle {
+    display: flex;
+  }
+
+  .site-nav.nav-open .nav-links {
+    display: flex;
+  }
+
+  .hero {
+    padding: 110px 0 70px;
+  }
+
+  .section {
+    padding: 56px 0;
+  }
+
+  .education-item {
+    flex-direction: column;
+  }
+
+  .language-list {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
