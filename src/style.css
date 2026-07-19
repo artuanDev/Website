@@ -491,7 +491,14 @@ h3.section-subheading {
 
 .card-summary {
   font-size: 0.92rem;
+  line-height: 1.55;
   margin-bottom: 1em;
+  min-height: 6.2em;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  overflow: hidden;
 }
 
 .card-tags {

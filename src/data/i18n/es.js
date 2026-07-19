@@ -42,7 +42,7 @@ export default {
     filterWork: "Trabajo",
     filterPersonal: "Personal",
     viewProject: "Ver proyecto",
-    noMedia: "Este proyecto aún no tiene material visual — vuelve pronto.",
+    noMedia: "\n\n",
   },
   projectDetail: {
     back: "Volver al Portfolio",
@@ -70,7 +70,7 @@ export default {
     formSending: "Enviando…",
     formSuccess: "¡Gracias! Tu mensaje ha sido enviado — te responderé pronto.",
     formError: "Algo salió mal al enviar tu mensaje. Por favor, escríbeme directamente por correo.",
-    formNotConfigured: "El formulario de contacto aún no está configurado — mientras tanto, escríbeme por correo.",
+    formNotConfigured: "\n",
     cvHeading: "Currículum",
     downloadCv: "Descargar CV (ES)",
   },

@@ -11,6 +11,12 @@ const FILTERS = [
 
 let activeFilter = "all";
 
+function getPreviewText(project) {
+  return getProjectText(project, "description")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function renderCard(project) {
   const thumbNode = project.thumb
     ? el("img", { class: "card-thumb", src: project.thumb, alt: getProjectText(project, "title"), loading: "lazy" })
@@ -34,7 +40,7 @@ function renderCard(project) {
       thumbNode,
       el("div", { class: "card-body" }, [
         el("h3", {}, getProjectText(project, "title")),
-        el("p", { class: "card-summary" }, getProjectText(project, "summary")),
+        el("p", { class: "card-summary" }, getPreviewText(project)),
         el(
           "ul",
           { class: "card-tags" },

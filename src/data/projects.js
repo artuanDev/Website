@@ -344,17 +344,17 @@ const projects = [
       en: {
         title: "Raymarching Renderer (SDFs)",
         summary:
-          "A raymarching renderer in Unity built on Signed Distance Functions, enabling complex procedural 3D content without traditional meshes.",
+          "No information available yet.",
         description:
-          "A raymarching renderer implemented in Unity using Signed Distance Functions (SDFs), enabling the creation of complex procedural 3D content directly in a fragment shader rather than through traditional mesh geometry. Explores SDF primitives, smooth blending operations, and lighting within a raymarched scene.\n\nA personal project undertaken to build a deeper understanding of GPU-driven procedural geometry techniques.",
+          "No information available yet.",
         role: "Personal project — research, design, and implementation.",
       },
       es: {
         title: "Renderizador Raymarching (SDF)",
         summary:
-          "Renderizador raymarching en Unity basado en Funciones de Distancia con Signo (SDF), que permite crear contenido 3D procedural complejo sin mallas tradicionales.",
+          "No hay información.",
         description:
-          "Renderizador raymarching implementado en Unity utilizando Funciones de Distancia con Signo (SDF), que permite crear contenido 3D procedural complejo directamente en un fragment shader en lugar de mediante geometría de malla tradicional. Explora primitivas SDF, operaciones de mezcla suave (smooth blending) e iluminación dentro de una escena raymarcheada.\n\nProyecto personal realizado para profundizar en técnicas de geometría procedural dirigidas por GPU.",
+          "No hay información disponible aún.\n\n",
         role: "Proyecto personal — investigación, diseño e implementación.",
       },
     },
