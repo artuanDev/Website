@@ -2,6 +2,7 @@ import { el, clear, paragraphs } from "../lib/dom.js";
 import { t, getProjectText } from "../lib/i18n.js";
 import projects from "../data/projects.js";
 import { navigateToSection } from "../lib/router.js";
+import { renderSdfCaseStudy } from "./sdfCaseStudy.js";
 
 function renderNotFound() {
   return el("section", { class: "section project-detail" }, [
@@ -69,6 +70,10 @@ function renderVideo(project) {
 export function renderProjectDetail(slug) {
   const project = projects.find((p) => p.id === slug);
   if (!project) return renderNotFound();
+
+  if (project.detailRenderer === "sdf-case-study") {
+    return renderSdfCaseStudy(project);
+  }
 
   const noMedia = !project.thumb && !project.gallery.length && !project.video;
 

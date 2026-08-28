@@ -334,28 +334,33 @@ const projects = [
   {
     id: "raymarching-sdf",
     category: "personal",
-    year: "2024",
-    tech: ["HLSL", "Unity", "Raymarching", "SDF"],
-    thumb: null,
-    gallery: [],
-    video: null,
+    year: "2026",
+    tech: ["Unity 6", "URP 17.3", "C#", "HLSL", "Compute Shaders", "RenderGraph"],
+    thumb: "/assets/projects/raymarching-sdf/thumb.png",
+    gallery: [
+      "/assets/projects/raymarching-sdf/benchmark.png",
+      "/assets/projects/raymarching-sdf/primitive-gallery.png",
+      "/assets/projects/raymarching-sdf/geometry-comparison.png",
+    ],
+    video: "/assets/projects/raymarching-sdf/hero.mp4",
+    detailRenderer: "sdf-case-study",
     links: { artstation: null, repo: null },
     i18n: {
       en: {
-        title: "Raymarching Renderer (SDFs)",
+        title: "Real-Time SDF Renderer for Unity URP",
         summary:
-          "No information available yet.",
+          "A native-resolution raymarching system with component-based authoring, CSG, GPU-driven rendering, and URP Lit materials.",
         description:
-          "No information available yet.",
-        role: "Personal project — research, design, and implementation.",
+          "An extensible signed-distance-field renderer built as a native part of Unity's Universal Render Pipeline. It combines editable components, constructive solid geometry, stackable modifiers, GPU-driven scene updates, and physically based materials in one real-time workflow.",
+        role: "Personal project — research, rendering architecture, tools, and implementation.",
       },
       es: {
-        title: "Renderizador Raymarching (SDF)",
+        title: "Renderizador SDF en Tiempo Real para Unity URP",
         summary:
-          "No hay información.",
+          "Sistema de raymarching a resolución nativa con edición por componentes, CSG, renderizado en GPU y materiales URP Lit.",
         description:
-          "No hay información disponible aún.\n\n",
-        role: "Proyecto personal — investigación, diseño e implementación.",
+          "Un renderizador extensible de campos de distancia firmado integrado de forma nativa en Universal Render Pipeline. Combina componentes editables, geometría sólida constructiva, modificadores apilables, actualización de escena en GPU y materiales físicamente correctos en un único flujo de trabajo en tiempo real.",
+        role: "Proyecto personal — investigación, arquitectura de renderizado, herramientas e implementación.",
       },
     },
   },
