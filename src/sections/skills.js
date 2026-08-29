@@ -17,32 +17,56 @@ export function renderSkills() {
     ]);
   });
 
-  const softItems = softSkills.map((skill) => {
+  const softItems = softSkills.map((skill, index) => {
     const localized = skill.i18n[lang] || skill.i18n.en;
     return el("article", { class: "soft-skill" }, [
-      el("h4", {}, localized.title),
-      el("p", {}, localized.description),
+      el("span", { class: "soft-skill-index", "aria-hidden": "true" }, String(index + 1).padStart(2, "0")),
+      el("div", {}, [
+        el("h4", {}, localized.title),
+        el("p", {}, localized.description),
+      ]),
     ]);
   });
 
   const languageItems = languages.map((entry) => {
     const localized = entry.i18n[lang] || entry.i18n.en;
     return el("li", { class: "language-item" }, [
-      el("span", { class: "language-name" }, localized.name),
-      el("span", { class: "language-level" }, localized.level),
+      el("span", { class: "language-code", "aria-hidden": "true" }, entry.id === "spanish" ? "ES" : "EN"),
+      el("div", {}, [
+        el("span", { class: "language-name" }, localized.name),
+        el("span", { class: "language-level" }, localized.level),
+      ]),
     ]);
   });
 
   return el("section", { class: "section skills", id: "skills" }, [
     el("div", { class: "section-inner" }, [
-      el("h2", { class: "section-heading" }, t("skills.heading")),
-      el("div", { class: "skill-groups" }, technicalGroups),
-
-      el("h3", { class: "section-subheading" }, t("skills.softHeading")),
-      el("div", { class: "soft-skills-grid" }, softItems),
-
-      el("h3", { class: "section-subheading" }, t("skills.languagesHeading")),
-      el("ul", { class: "language-list" }, languageItems),
+      el("div", { class: "skills-header" }, [
+        el("p", { class: "skills-kicker" }, t("skills.kicker")),
+        el("h2", { class: "section-heading" }, t("skills.heading")),
+        el("p", { class: "skills-intro" }, t("skills.intro")),
+      ]),
+      el("div", { class: "skills-subsection technical-skills-section" }, [
+        el("div", { class: "skills-subsection-heading" }, [
+          el("span", {}, "01"),
+          el("h3", {}, t("skills.technicalHeading")),
+        ]),
+        el("div", { class: "skill-groups" }, technicalGroups),
+      ]),
+      el("div", { class: "skills-subsection soft-skills-section" }, [
+        el("div", { class: "skills-subsection-heading" }, [
+          el("span", {}, "02"),
+          el("div", {}, [el("h3", {}, t("skills.softHeading")), el("p", {}, t("skills.softIntro"))]),
+        ]),
+        el("div", { class: "soft-skills-grid" }, softItems),
+      ]),
+      el("div", { class: "skills-subsection language-section" }, [
+        el("div", { class: "skills-subsection-heading" }, [
+          el("span", {}, "03"),
+          el("div", {}, [el("h3", {}, t("skills.languagesHeading")), el("p", {}, t("skills.languagesIntro"))]),
+        ]),
+        el("ul", { class: "language-list" }, languageItems),
+      ]),
     ]),
   ]);
 }

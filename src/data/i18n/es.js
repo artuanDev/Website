@@ -33,6 +33,9 @@ export default {
   },
   experience: {
     heading: "Experiencia Laboral",
+    kicker: "Trayectoria profesional",
+    intro: "Trabajo de arte técnico centrado en herramientas de producción, contenido procedural, interfaces de simulación y rendering en tiempo real.",
+    impact: "Responsabilidades e impacto destacados",
   },
   education: {
     heading: "Educación",
@@ -84,8 +87,13 @@ export default {
   },
   skills: {
     heading: "Competencias Técnicas",
+    kicker: "Capacidades",
+    intro: "Un conjunto de herramientas orientado a producción que conecta código, rendering, contenido procedural y flujos para artistas.",
+    technicalHeading: "Herramientas técnicas",
     softHeading: "Habilidades Interpersonales",
+    softIntro: "Cómo colaboro, comunico y asumo responsabilidad dentro de equipos multidisciplinares.",
     languagesHeading: "Idiomas",
+    languagesIntro: "Idiomas que utilizo en la colaboración profesional y cotidiana.",
   },
   contact: {
     heading: "Contacto",

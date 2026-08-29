@@ -46,14 +46,12 @@ function renderCard(project) {
       },
     },
     [
-      el("div", { class: "card-media" }, [
-        thumbNode,
-        el("div", { class: "card-media-meta" }, [
+      el("div", { class: "card-media" }, [thumbNode]),
+      el("div", { class: "card-body" }, [
+        el("div", { class: "card-body-meta" }, [
           el("span", { class: "card-category" }, project.category === "work" ? t("portfolio.workLabel") : t("portfolio.personalLabel")),
           el("span", { class: "card-year" }, project.year),
         ]),
-      ]),
-      el("div", { class: "card-body" }, [
         el("h3", {}, getProjectText(project, "title")),
         el("p", { class: "card-summary" }, getPreviewText(project)),
         el(

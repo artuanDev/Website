@@ -33,6 +33,9 @@ export default {
   },
   experience: {
     heading: "Work Experience",
+    kicker: "Professional journey",
+    intro: "Technical art work spanning production tooling, procedural content, simulation interfaces, and real-time rendering.",
+    impact: "Selected responsibilities and impact",
   },
   education: {
     heading: "Education",
@@ -84,8 +87,13 @@ export default {
   },
   skills: {
     heading: "Technical Skills",
+    kicker: "Capabilities",
+    intro: "A production-focused toolkit connecting code, rendering, procedural content, and artist workflows.",
+    technicalHeading: "Technical toolkit",
     softHeading: "Soft Skills",
+    softIntro: "How I collaborate, communicate, and take ownership inside multidisciplinary teams.",
     languagesHeading: "Languages",
+    languagesIntro: "Languages I use in professional and day-to-day collaboration.",
   },
   contact: {
     heading: "Contact",
