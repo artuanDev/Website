@@ -66,7 +66,7 @@ const projects = [
   {
     id: "pfd",
     category: "work",
-    year: "2022 - 2026",
+    year: "2023 - 2026",
     tech: ["Unreal Engine", "Rust", "C++", "HLSL"],
     thumb: "/assets/projects/pfd/thumb.png",
     gallery: [
@@ -126,7 +126,7 @@ const projects = [
   {
     id: "general-scene-settings",
     category: "work",
-    year: "2022 - 2026",
+    year: "2023 - 2026",
     tech: ["Unreal Engine", "Blueprint"],
     thumb: "/assets/projects/general-scene-settings/thumb.jpg",
     gallery: [
@@ -186,7 +186,7 @@ const projects = [
   {
     id: "proc-sat",
     category: "work",
-    year: "2022 - 2026",
+    year: "2023 - 2026",
     tech: ["Unreal Engine", "C++", "Procedural Generation"],
     thumb: "/assets/projects/proc-sat/thumb.png",
     gallery: [
