@@ -234,6 +234,23 @@ function textBlock(tag, className, text) {
   return el(tag, { class: className }, text);
 }
 
+function renderIdeaIntro(text) {
+  const linkedName = "Iñigo Quílez";
+  const nameIndex = text.indexOf(linkedName);
+  if (nameIndex === -1) return el("p", {}, text);
+
+  return el("p", {}, [
+    text.slice(0, nameIndex),
+    el("a", {
+      class: "sdf-inline-link",
+      href: "https://iquilezles.org/articles/raymarchingdf/",
+      target: "_blank",
+      rel: "noreferrer noopener",
+    }, linkedName),
+    text.slice(nameIndex + linkedName.length),
+  ]);
+}
+
 function mediaLabel(text) {
   return el("span", { class: "sdf-media-label" }, text);
 }
@@ -310,7 +327,7 @@ function renderIdea(c) {
   return chapter("idea", c, [
     el("div", { class: "sdf-two-col sdf-idea-grid" }, [
       el("div", { class: "sdf-copy" }, [
-        el("p", {}, c.intro), el("p", {}, c.definition),
+        renderIdeaIntro(c.intro), el("p", {}, c.definition),
         el("div", { class: "sdf-sign-grid" }, c.signs.map(([formula, label]) => el("div", { class: "sdf-sign" }, [el("strong", {}, formula), el("span", {}, label)]))),
         textBlock("p", "sdf-kicker", c.takeaway),
       ]),

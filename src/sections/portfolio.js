@@ -12,7 +12,7 @@ const FILTERS = [
 let activeFilter = "all";
 
 function getPreviewText(project) {
-  return getProjectText(project, "description")
+  return getProjectText(project, "summary")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -37,7 +37,13 @@ function renderCard(project) {
       },
     },
     [
-      thumbNode,
+      el("div", { class: "card-media" }, [
+        thumbNode,
+        el("div", { class: "card-media-meta" }, [
+          el("span", { class: "card-category" }, project.category === "work" ? t("portfolio.workLabel") : t("portfolio.personalLabel")),
+          el("span", { class: "card-year" }, project.year),
+        ]),
+      ]),
       el("div", { class: "card-body" }, [
         el("h3", {}, getProjectText(project, "title")),
         el("p", { class: "card-summary" }, getPreviewText(project)),
