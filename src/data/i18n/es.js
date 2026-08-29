@@ -41,6 +41,7 @@ export default {
     heading: "Portfolio",
     subheading: "Una selección de herramientas, shaders y sistemas procedurales que he desarrollado.",
     filterAll: "Todos",
+    filterFeatured: "Mis mejores proyectos",
     filterWork: "Trabajo",
     filterPersonal: "Personal",
     workLabel: "Profesional",

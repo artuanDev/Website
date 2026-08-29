@@ -2549,7 +2549,7 @@ p {
 }
 
 .card-thumb {
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 1 / 1;
   object-fit: cover;
   background: #090e17;
   transition: transform 450ms ease, filter 450ms ease;

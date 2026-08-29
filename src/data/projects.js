@@ -158,6 +158,7 @@ const projects = [
   },
   {
     id: "proc-building",
+    featuredRank: 2,
     category: "work",
     year: "2023 - 2026",
     tech: ["Unreal Engine", "C++", "Procedural Generation"],
@@ -241,6 +242,7 @@ const projects = [
   },
   {
     id: "vegetation",
+    featuredRank: 4,
     category: "work",
     year: "2025",
     tech: ["HLSL", "Unreal Engine", "Shader Optimization"],
@@ -276,6 +278,7 @@ const projects = [
   },
   {
     id: "npr-rendering",
+    featuredRank: 3,
     category: "personal",
     year: "2025",
     tech: ["HLSL", "GLSL", "Unity", "Unreal Engine", "Blender"],
@@ -333,6 +336,7 @@ const projects = [
   },
   {
     id: "raymarching-sdf",
+    featuredRank: 1,
     category: "personal",
     year: "2026",
     tech: ["Unity 6", "URP 17.3", "C#", "HLSL", "Compute Shaders", "RenderGraph"],

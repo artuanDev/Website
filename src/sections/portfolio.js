@@ -5,11 +5,20 @@ import { navigateToProject } from "../lib/router.js";
 
 const FILTERS = [
   { id: "all", key: "portfolio.filterAll" },
+  { id: "featured", key: "portfolio.filterFeatured" },
   { id: "work", key: "portfolio.filterWork" },
   { id: "personal", key: "portfolio.filterPersonal" },
 ];
 
 let activeFilter = "all";
+
+function orderProjects(projectList) {
+  return [...projectList].sort((a, b) => {
+    const aRank = a.featuredRank ?? Number.POSITIVE_INFINITY;
+    const bRank = b.featuredRank ?? Number.POSITIVE_INFINITY;
+    return aRank - bRank;
+  });
+}
 
 function getPreviewText(project) {
   return getProjectText(project, "summary")
@@ -63,7 +72,11 @@ export function renderPortfolio() {
 
   function renderGrid() {
     clear(grid);
-    const filtered = activeFilter === "all" ? projects : projects.filter((p) => p.category === activeFilter);
+    const filtered = activeFilter === "all"
+      ? orderProjects(projects)
+      : activeFilter === "featured"
+        ? orderProjects(projects.filter((project) => project.featuredRank != null))
+        : projects.filter((project) => project.category === activeFilter);
     filtered.forEach((project) => grid.appendChild(renderCard(project)));
   }
 
