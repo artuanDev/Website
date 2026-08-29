@@ -10,6 +10,8 @@ import { renderExperience } from "./sections/experience.js";
 import { renderEducation } from "./sections/education.js";
 import { renderPortfolio } from "./sections/portfolio.js";
 import { renderProjectDetail } from "./sections/projectDetail.js";
+import { renderRecommendations } from "./sections/recommendations.js";
+import { renderRecommendationDetail } from "./sections/recommendationDetail.js";
 import { renderSkills } from "./sections/skills.js";
 import { renderContact } from "./sections/contact.js";
 import { renderFooter } from "./sections/footer.js";
@@ -22,6 +24,7 @@ const SECTION_RENDERERS = {
   experience: renderExperience,
   education: renderEducation,
   portfolio: renderPortfolio,
+  recommendations: renderRecommendations,
   skills: renderSkills,
   contact: renderContact,
 };
@@ -41,6 +44,7 @@ function handleLangSelect(lang) {
 // The section that should be highlighted in the nav for the current route.
 function activeSectionFor(route) {
   if (route.name === "section") return route.section;
+  if (route.name === "recommendation") return "recommendations";
   return null;
 }
 
@@ -64,6 +68,9 @@ function renderApp() {
 
   if (currentRoute.name === "project") {
     main.appendChild(renderProjectDetail(currentRoute.slug));
+    observeHeroElement(null);
+  } else if (currentRoute.name === "recommendation") {
+    main.appendChild(renderRecommendationDetail(currentRoute.slug));
     observeHeroElement(null);
   } else if (currentRoute.name === "section") {
     const renderer = SECTION_RENDERERS[currentRoute.section];

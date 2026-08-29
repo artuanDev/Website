@@ -6,6 +6,7 @@ const NAV_ITEMS = [
   { id: "experience", key: "nav.experience" },
   { id: "education", key: "nav.education" },
   { id: "portfolio", key: "nav.portfolio" },
+  { id: "recommendations", key: "nav.recommendations" },
   { id: "skills", key: "nav.skills" },
   { id: "contact", key: "nav.contact" },
 ];
