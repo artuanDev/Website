@@ -280,7 +280,7 @@ const projects = [
     id: "npr-rendering",
     featuredRank: 3,
     category: "personal",
-    year: "2025",
+    year: "2026",
     tech: ["HLSL", "GLSL", "Unity", "Unreal Engine", "Blender"],
     thumb: "/assets/projects/npr-rendering/thumb.png",
     gallery: [
@@ -311,7 +311,7 @@ const projects = [
   {
     id: "directional-uv",
     category: "personal",
-    year: "2025",
+    year: "2026",
     tech: ["HLSL", "Unity", "Shaders"],
     thumb: "/assets/projects/directional-uv/thumb.png",
     gallery: [],
