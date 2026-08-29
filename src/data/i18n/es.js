@@ -30,7 +30,7 @@ export default {
   about: {
     heading: "Sobre Mí",
     body:
-      "Soy un Artista Técnico que trabaja en la intersección entre el arte y la ingeniería, desarrollando herramientas procedurales, shaders y automatización para simulación en tiempo real. En CARLA Simulator desarrollo herramientas para artistas dentro del proyecto Digital Twins, sistemas de renderizado para el simulador aeroespacial AeroSim, y shaders optimizados que permiten que escenas complejas funcionen con fluidez en distintas plataformas.\n\nFuera del trabajo, exploro técnicas de renderizado por mi cuenta — escenas raymarching con SDF, sombreado no fotorrealista y sistemas de UV procedurales — para seguir creciendo tanto como artista como ingeniero.",
+      "Soy un Artista Técnico que trabaja en la intersección entre el arte y la ingeniería, desarrollando herramientas procedurales, shaders y automatización para simulación en tiempo real. Durante mi etapa en CARLA Simulator, desarrollé herramientas para artistas dentro del proyecto Digital Twins, sistemas de renderizado para el simulador aeroespacial AeroSim y shaders optimizados que permitían que escenas complejas funcionaran con fluidez en distintas plataformas.\n\nFuera del trabajo, exploro técnicas de renderizado por mi cuenta — escenas raymarching con SDF, sombreado no fotorrealista y sistemas de UV procedurales — para seguir creciendo tanto como artista como ingeniero.",
   },
   experience: {
     heading: "Experiencia Laboral",

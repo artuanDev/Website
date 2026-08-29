@@ -57,6 +57,9 @@ function renderHighlights(story) {
 function renderDemo(project) {
   if (!project.video) return null;
 
+  const language = getLang() === "es" ? "es" : "en";
+  const videos = project.demoVideos || [{ src: project.video }];
+
   return el("section", { class: "editorial-panel editorial-media-panel", id: "project-media" }, [
     el("div", { class: "editorial-section-heading editorial-heading-row" }, [
       el("div", {}, [
@@ -65,15 +68,20 @@ function renderDemo(project) {
       ]),
       el("p", { class: "editorial-section-intro" }, t("caseStudy.demoIntro")),
     ]),
-    el("div", { class: "editorial-video-frame" }, [
-      el("video", {
-        src: project.video,
-        poster: project.thumb,
-        controls: "",
-        preload: "metadata",
-        playsinline: "",
-      }),
-    ]),
+    el("div", { class: videos.length > 1 ? "editorial-video-grid editorial-video-grid-multiple" : "editorial-video-grid" },
+      videos.map((video) => el("figure", { class: "editorial-video-item" }, [
+        video.i18n ? el("figcaption", { class: "editorial-video-label" }, video.i18n[language] || video.i18n.en) : null,
+        el("div", { class: "editorial-video-frame" }, [
+          el("video", {
+            src: video.src,
+            poster: project.thumb,
+            controls: "",
+            preload: "metadata",
+            playsinline: "",
+          }),
+        ]),
+      ]))
+    ),
   ]);
 }
 

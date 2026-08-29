@@ -316,6 +316,22 @@ const projects = [
     thumb: "/assets/projects/directional-uv/thumb.png",
     gallery: [],
     video: "/assets/projects/directional-uv/video.mp4",
+    demoVideos: [
+      {
+        src: "/assets/projects/directional-uv/video.mp4",
+        i18n: {
+          en: "Original procedural cross-hatching demo",
+          es: "Demo original de cross-hatching procedural",
+        },
+      },
+      {
+        src: "/assets/projects/directional-uv/lighting-direction.mp4",
+        i18n: {
+          en: "Cross-hatching lighting-direction showcase",
+          es: "Demostración de la dirección de luz en el cross-hatching",
+        },
+      },
+    ],
     links: { artstation: null, repo: null },
     i18n: {
       en: {

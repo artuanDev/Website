@@ -967,6 +967,29 @@ h3.section-subheading {
   box-shadow: 0 22px 55px rgba(0, 0, 0, 0.32);
 }
 
+.editorial-video-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.editorial-video-grid-multiple {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.editorial-video-item {
+  min-width: 0;
+  margin: 0;
+}
+
+.editorial-video-label {
+  margin: 0 0 10px;
+  color: var(--editorial-accent);
+  font-size: 0.7rem;
+  font-weight: 780;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .editorial-video-frame video {
   width: 100%;
   aspect-ratio: 16 / 9;
@@ -3164,6 +3187,10 @@ p {
 }
 
 @media (max-width: 680px) {
+  .editorial-video-grid-multiple {
+    grid-template-columns: 1fr;
+  }
+
   .technical-skills-section .skill-groups,
   .soft-skills-grid,
   .language-list,
