@@ -3501,14 +3501,6 @@ p {
   letter-spacing: -0.07em;
 }
 
-.recommendation-letter-aside p {
-  max-width: 150px;
-  margin: 0;
-  color: #7f8da1;
-  font-size: 0.7rem;
-  line-height: 1.5;
-}
-
 .recommendation-letter-copy {
   position: relative;
   max-width: 730px;
@@ -3638,10 +3630,6 @@ p {
     flex: 0 0 auto;
     margin: 0;
     font-size: 1.35rem;
-  }
-
-  .recommendation-letter-aside p {
-    max-width: 220px;
   }
 
   .recommendation-detail-footer {

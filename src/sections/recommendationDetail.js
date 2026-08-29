@@ -57,7 +57,6 @@ export function renderRecommendationDetail(slug) {
       el("article", { class: "recommendation-letter" }, [
         el("aside", { class: "recommendation-letter-aside" }, [
           el("span", { class: "recommendation-letter-initials", "aria-hidden": "true" }, recommendation.initials),
-          el("p", {}, t("recommendationDetail.originalWording")),
         ]),
         el("div", { class: "recommendation-letter-copy" }, [
           el("span", { class: "recommendation-quote-mark", "aria-hidden": "true" }, "“"),

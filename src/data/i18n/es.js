@@ -66,7 +66,6 @@ export default {
     date: "Fecha",
     context: "Contexto",
     language: "Idioma original",
-    originalWording: "Presentada respetando su redacción original.",
     source: "Fuente original",
     sourcePdf: "Carta de recomendación firmada y proporcionada en PDF.",
     sourceLinkedIn: "Recomendación publicada en el perfil de LinkedIn de Antonio.",

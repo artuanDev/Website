@@ -66,7 +66,6 @@ export default {
     date: "Date",
     context: "Context",
     language: "Original language",
-    originalWording: "Presented in its original wording.",
     source: "Original source",
     sourcePdf: "Signed recommendation letter supplied as a PDF.",
     sourceLinkedIn: "Recommendation published on Antonio's LinkedIn profile.",
