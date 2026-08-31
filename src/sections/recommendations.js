@@ -1,15 +1,20 @@
 import { el } from "../lib/dom.js";
-import { t } from "../lib/i18n.js";
+import { t, getLang } from "../lib/i18n.js";
 import { navigateToRecommendation } from "../lib/router.js";
 import recommendations from "../data/recommendations.js";
 
-function previewText(recommendation) {
-  const firstParagraph = recommendation.body[0];
+function localizedRecommendation(recommendation) {
+  return { ...recommendation, ...(recommendation.i18n?.[getLang()] || {}) };
+}
+
+function previewText(localized) {
+  const firstParagraph = localized.body[0];
   return firstParagraph.length > 220 ? `${firstParagraph.slice(0, 217).trimEnd()}…` : firstParagraph;
 }
 
 function renderRecommendationCard(recommendation, index) {
   const openRecommendation = () => navigateToRecommendation(recommendation.id);
+  const localized = localizedRecommendation(recommendation);
 
   return el("article", {
     class: "recommendation-card",
@@ -31,11 +36,11 @@ function renderRecommendationCard(recommendation, index) {
     el("div", { class: "recommendation-card-body" }, [
       el("div", { class: "recommendation-card-meta" }, [
         el("span", {}, recommendation.source === "letter" ? t("recommendations.formalLetter") : t("recommendations.linkedin")),
-        el("time", {}, recommendation.date),
+        el("time", {}, localized.date),
       ]),
       el("h3", {}, recommendation.author),
-      el("p", { class: "recommendation-card-role" }, recommendation.role),
-      el("p", { class: "recommendation-card-preview" }, previewText(recommendation)),
+      el("p", { class: "recommendation-card-role" }, localized.role),
+      el("p", { class: "recommendation-card-preview" }, previewText(localized)),
       el("span", { class: "recommendation-card-link" }, t("recommendations.readRecommendation")),
     ]),
   ]);

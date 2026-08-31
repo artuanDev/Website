@@ -21,6 +21,26 @@ const recommendations = [
       "Director, Simulation Ecosystem Development",
       "NVIDIA",
     ],
+    i18n: {
+      es: {
+        role: "Director de Desarrollo del Ecosistema de Simulación · NVIDIA",
+        relationship: "Director Ejecutivo · Embodied AI Foundation",
+        date: "17 de junio de 2026",
+        language: "Inglés",
+        salutation: "A quien corresponda:",
+        body: [
+          "Me complace recomendar a Antonio Mata para cualquier puesto de Artista Técnico que esté considerando. Trabajé con Antonio en calidad de Director Ejecutivo de Embodied AI Foundation, donde se convirtió en uno de nuestros colaboradores más versátiles en varios proyectos de simulación, con un perfil verdaderamente híbrido entre arte y herramientas.",
+          "La fortaleza de Antonio reside en la combinación de capacidad artística e ingeniería. Se desenvuelve especialmente bien en el ámbito de los shaders y el arte técnico: escribe shaders, depura problemas de renderizado y normales, y desarrolla herramientas procedurales. También trabaja con C++ cuando un proyecto necesita ampliar una clase o añadir una funcionalidad. Disfruta aprendiendo nuevas tecnologías y toma la iniciativa cuando un área despierta su interés. Esa capacidad para moverse entre el arte y las herramientas es la esencia de un puesto de Artista Técnico, y Antonio aporta precisamente eso a un equipo.",
+          "Antonio ha contribuido a una parte importante de nuestro portfolio de simulación. En CARLA, el simulador de conducción autónoma de código abierto, desarrolló herramientas procedurales para la generación de edificios, shaders y sistemas PCG; dentro de nuestro programa Digital Twins creó las herramientas de generación procedural de edificios. En Explorer, nuestro programa de simulación para NASA y Caterpillar en los ámbitos de exploración espacial y vehículos todoterreno, resolvió problemas de shaders y renderizado de normales que bloqueaban entregas para clientes. Contribuyó con shaders y programación de cabina a AeroSim, nuestra colaboración aeroespacial con Supernal, la empresa de movilidad aérea avanzada de Hyundai Motor Group. También trabajó en Isaac Sim de NVIDIA, configurando articulaciones de robots y apoyando la integración con Omniverse, y desarrolló shaders para nuestra plataforma de simulación espacial con Northrop Grumman. Esta amplitud entre automoción, robótica, aeronáutica y espacio ha puesto a prueba tanto sus capacidades de arte técnico como de desarrollo de herramientas, y Antonio ha respondido con curiosidad e iniciativa.",
+          "Antonio cuenta con mi firme recomendación para cualquier puesto de Artista Técnico. Estaré encantado de ampliar esta información con cualquier parte interesada.",
+        ],
+        signature: [
+          "Dr. Germán Ros Sánchez,",
+          "Director de Desarrollo del Ecosistema de Simulación",
+          "NVIDIA",
+        ],
+      },
+    },
   },
   {
     id: "aaron-samaniego",
@@ -40,6 +60,22 @@ const recommendations = [
       "What I appreciate most about Antonio is his natural curiosity and willingness to take ownership of new challenges. He actively looks for opportunities to improve existing processes, learn new technologies, and expand his skill set. His combination of artistic sensibility, technical knowledge, and adaptability makes him a valuable asset to any team.",
       "I strongly recommend Antonio for any Technical Artist position. I am confident that he will continue to grow professionally and make meaningful contributions wherever he works.",
     ],
+    i18n: {
+      es: {
+        role: "Ingeniero de Software en CARLA Simulator",
+        relationship: "Aaron supervisó directamente a Antonio",
+        date: "17 de agosto de 2026",
+        language: "Inglés",
+        body: [
+          "Antonio es un Artista Técnico joven y muy motivado, con un gran deseo de aprender y mejorar continuamente. Durante el tiempo que trabajamos juntos demostró de forma constante su capacidad para explorar nuevas tecnologías, evaluar su potencial y aportar al equipo ideas, herramientas y recursos de valor.",
+          "Una de las mayores fortalezas de Antonio es su curiosidad. No teme adentrarse en herramientas, frameworks o bases de código que no conoce y consigue ser productivo rápidamente. Tanto al trabajar en Unreal Engine con C++, Blueprints y PCG como al desarrollar soluciones en Isaac Sim con Python, aborda cada reto con entusiasmo y voluntad de aprender.",
+          "Su combinación de capacidades artísticas y técnicas le permite aportar perspectivas únicas a la resolución de problemas y a la creación de contenido. Sus habilidades de modelado son destacables y su dominio de Blender ha sido a menudo un recurso valioso para sus compañeros. Sin embargo, donde realmente sobresale es en su comprensión de shaders, materiales de renderizado y pipelines visuales. Su capacidad para crear, optimizar y perfeccionar efectos visuales ha contribuido de forma constante a mejorar la calidad visual de nuestros proyectos.",
+          "Además, Antonio ha desempeñado un papel importante en el desarrollo de herramientas y flujos de trabajo relacionados con gemelos digitales. Su trabajo generando mallas y creando flujos para la generación de entornos y escenarios ha sido esencial para acelerar los procesos de creación de mapas en varios proyectos. Estas contribuciones han tenido un impacto directo en la productividad del equipo y han ayudado a agilizar los flujos de creación de contenido.",
+          "Lo que más valoro de Antonio es su curiosidad natural y su disposición para asumir nuevos retos. Busca activamente oportunidades para mejorar procesos existentes, aprender nuevas tecnologías y ampliar sus capacidades. Su combinación de sensibilidad artística, conocimiento técnico y adaptabilidad lo convierte en un miembro valioso para cualquier equipo.",
+          "Recomiendo firmemente a Antonio para cualquier puesto de Artista Técnico. Confío en que seguirá creciendo profesionalmente y realizando contribuciones significativas allí donde trabaje.",
+        ],
+      },
+    },
   },
   {
     id: "marcos-delgado-cuevas",
@@ -57,6 +93,20 @@ const recommendations = [
       "Antonio is a reliable, independent, and highly self-driven person, with a strong ability to learn and solve problems on his own. At the same time, he is a great teammate: positive, approachable, and always ready to bring a smile or a joke to the team.",
       "It was a pleasure working with him, and I would gladly recommend Antonio to any team looking for someone curious, technically minded, and genuinely motivated to keep learning and improving.",
     ],
+    i18n: {
+      es: {
+        role: "Artista Principal en CARLA Simulator",
+        relationship: "Marcos supervisó directamente a Antonio",
+        date: "16 de agosto de 2026",
+        language: "Inglés",
+        body: [
+          "Tuve el placer de trabajar con Antonio como responsable suyo dentro del equipo de Arte de CARLA.",
+          "Una de las cualidades que más destacaba en Antonio era su impulso constante por aprender y explorar nuevas tecnologías. Siempre estaba dispuesto a ampliar sus capacidades, especialmente en el desarrollo de shaders, programación y herramientas, buscando formas de aplicar esos conocimientos para mejorar tanto su propio trabajo como los flujos del equipo.",
+          "Antonio es una persona fiable, independiente y con una gran iniciativa, capaz de aprender y resolver problemas por sí mismo. Al mismo tiempo, es un excelente compañero: positivo, accesible y siempre dispuesto a aportar una sonrisa o una broma al equipo.",
+          "Fue un placer trabajar con él y recomendaría sin dudarlo a Antonio a cualquier equipo que busque una persona curiosa, con mentalidad técnica y una motivación genuina por seguir aprendiendo y mejorando.",
+        ],
+      },
+    },
   },
   {
     id: "sara-albujar-martin",
@@ -71,6 +121,23 @@ const recommendations = [
     body: [
       "Antonio es un excelente compañero y un muy competente profesional en su área. Durante el tiempo en el que he tenido el placer de trabajar y estudiar con él, he podido comprobar que es más que capaz de enfrentarse a situaciones de estrés, enfrentar problemas con resolución y paciencia. Pero sobre todo, tiene una increíble capacidad para trabajar en equipo y siempre mantener los ánimos del grupo. Sin duda volvería a trabajar con él, de tener la ocasión.",
     ],
+    i18n: {
+      en: {
+        role: "Instructor | Unreal Engine | Unity C# | 3ds Max | Adobe CC",
+        relationship: "Sara and Antonio studied together",
+        date: "May 27, 2024",
+        language: "Spanish",
+        body: [
+          "Antonio is an excellent teammate and a highly capable professional in his field. During the time I had the pleasure of working and studying with him, I saw that he is more than capable of handling stressful situations and addressing problems with determination and patience. Above all, he has an incredible ability to work as part of a team and keep everyone's spirits up. I would certainly work with him again if given the opportunity.",
+        ],
+      },
+      es: {
+        role: "Docente | Unreal Engine | Unity C# | 3ds Max | Adobe CC",
+        relationship: "Sara y Antonio estudiaron juntos",
+        date: "27 de mayo de 2024",
+        language: "Español",
+      },
+    },
   },
 ];
 
