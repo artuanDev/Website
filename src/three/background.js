@@ -50,7 +50,9 @@ let backgroundPreference = readBackgroundPreference();
 
 function updateCanvasVisibility(enabled) {
   const canvas = document.getElementById("bg-canvas");
+  const sky = document.getElementById("sky-bg");
   canvas?.classList.toggle("is-disabled", !enabled);
+  sky?.classList.toggle("is-static", !enabled);
 }
 
 export function isThreeBackgroundEnabled() {
