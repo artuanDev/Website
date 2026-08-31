@@ -2101,32 +2101,129 @@ h3.section-subheading {
 }
 
 /* ---------- Contact ---------- */
+.contact-header {
+  max-width: 760px;
+  margin-bottom: clamp(34px, 5vw, 58px);
+}
+
+.contact-kicker {
+  margin: 0 0 12px;
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+}
+
 .contact-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 48px;
-  margin-bottom: 2em;
+  grid-template-columns: minmax(0, 1.15fr) minmax(290px, 0.85fr);
+  gap: 18px;
+  align-items: stretch;
+  margin-bottom: 18px;
+}
+
+.contact-primary,
+.contact-directory,
+.cv-download {
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: 18px;
+  background: rgba(7, 12, 20, 0.56);
+}
+
+.contact-primary {
+  display: flex;
+  min-width: 0;
+  min-height: 330px;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(28px, 5vw, 54px);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(124, 246, 207, 0.14), transparent 42%),
+    linear-gradient(145deg, rgba(18, 31, 43, 0.9), rgba(7, 12, 20, 0.88));
+}
+
+.contact-primary-label,
+.contact-directory-heading,
+.cv-download-label {
+  margin: 0 0 14px;
+  color: var(--accent);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.contact-email {
+  width: fit-content;
+  max-width: 100%;
+  margin-bottom: 22px;
+  color: var(--text);
+  font-size: clamp(1.45rem, 3.25vw, 2.85rem);
+  font-weight: 720;
+  letter-spacing: -0.045em;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+  text-decoration: underline;
+  text-decoration-color: rgba(124, 246, 207, 0.42);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 8px;
+  transition: color var(--transition), text-decoration-color var(--transition);
+}
+
+.contact-email:hover {
+  color: var(--accent);
+  text-decoration-color: var(--accent);
+}
+
+.contact-note {
+  max-width: 480px;
+  margin: 0;
+  color: #aebacd;
+  font-size: 0.9rem;
+}
+
+.contact-directory {
+  padding: 26px;
 }
 
 .contact-links {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
 }
 
 .contact-link {
+  position: relative;
   display: flex;
   flex-direction: column;
-  padding: 16px;
+  padding: 18px 48px 18px 18px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   color: var(--text);
-  transition: border-color var(--transition);
+  transition: background var(--transition), border-color var(--transition), transform var(--transition);
+}
+
+.contact-link::after {
+  content: "↗";
+  position: absolute;
+  top: 50%;
+  right: 18px;
+  color: rgba(124, 246, 207, 0.58);
+  font-size: 1rem;
+  transform: translateY(-50%);
+  transition: transform var(--transition);
 }
 
 .contact-link:hover {
   border-color: var(--accent);
+  background: rgba(124, 246, 207, 0.055);
+  transform: translateX(3px);
+}
+
+.contact-link:hover::after {
+  transform: translate(2px, calc(-50% - 2px));
 }
 
 .contact-link strong {
@@ -2137,60 +2234,32 @@ h3.section-subheading {
   margin-bottom: 4px;
 }
 
-.contact-form-fields {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.contact-form-fields label {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-}
-
-.contact-form-fields input,
-.contact-form-fields textarea {
-  width: 100%;
-  padding: 10px 12px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  color: var(--text);
-  font-family: inherit;
-  font-size: 0.95rem;
-}
-
-.contact-form-fields input:focus,
-.contact-form-fields textarea:focus {
-  outline: none;
-  border-color: var(--accent);
-}
-
-.contact-form-fields button {
-  margin-top: 8px;
-  align-self: flex-start;
-}
-
-.form-status {
-  font-size: 0.88rem;
-  min-height: 1.2em;
-}
-
-.form-status-success {
-  color: var(--success);
-}
-
-.form-status-error {
-  color: var(--error);
-}
-
-.form-status-info {
-  color: var(--text-muted);
+.contact-link span {
+  overflow-wrap: anywhere;
 }
 
 .cv-download {
-  border-top: 1px solid var(--border);
-  padding-top: 24px;
+  display: flex;
+  justify-content: space-between;
+  gap: 28px;
+  align-items: center;
+  padding: 22px 26px;
+}
+
+.cv-download-label {
+  margin-bottom: 3px;
+}
+
+.cv-download-note {
+  max-width: 620px;
+  margin: 0;
+  color: #93a2b6;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.cv-download .btn {
+  flex: 0 0 auto;
 }
 
 /* ---------- Footer ---------- */
@@ -2254,6 +2323,15 @@ h3.section-subheading {
   .language-list {
     flex-direction: column;
     gap: 12px;
+  }
+
+  .contact-primary {
+    min-height: 270px;
+  }
+
+  .cv-download {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
 
@@ -2537,12 +2615,35 @@ p {
   border-color: rgba(255, 255, 255, 0.14);
   background: rgba(255, 255, 255, 0.025);
   font-weight: 650;
+  box-shadow: none;
+  transform: translateY(0);
+  transition: color var(--transition), background var(--transition), border-color var(--transition), box-shadow var(--transition), transform var(--transition);
 }
 
-.filter-btn.active,
 .filter-btn:hover {
   border-color: rgba(124, 246, 207, 0.55);
   background: var(--accent-soft);
+  color: #bffff0;
+  transform: translateY(-1px);
+}
+
+.filter-btn.active {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #07120f;
+  box-shadow: 0 8px 24px rgba(124, 246, 207, 0.2);
+  transform: translateY(0);
+}
+
+.filter-btn.active:hover {
+  border-color: #bffff0;
+  background: #9bffe0;
+  color: #07120f;
+}
+
+.filter-btn:active {
+  box-shadow: 0 3px 12px rgba(124, 246, 207, 0.15);
+  transform: translateY(1px) scale(0.98);
 }
 
 .portfolio-grid {
@@ -2563,6 +2664,13 @@ p {
   transform: translateY(-6px);
   border-color: rgba(124, 246, 207, 0.5);
   box-shadow: 0 24px 52px rgba(0, 0, 0, 0.28);
+}
+
+.project-card:active {
+  transform: translateY(-1px) scale(0.99);
+  border-color: var(--accent);
+  background: linear-gradient(155deg, rgba(28, 48, 57, 0.98), rgba(10, 20, 25, 0.98));
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22), 0 0 0 2px rgba(124, 246, 207, 0.16);
 }
 
 .card-media {
@@ -2693,20 +2801,64 @@ p {
 }
 
 .education-item,
-.contact-link,
-.contact-form-fields input,
-.contact-form-fields textarea {
+.contact-link {
   border-color: rgba(255, 255, 255, 0.12);
   background: rgba(7, 12, 20, 0.68);
 }
 
 .site-footer {
-  padding: 42px 24px;
+  position: fixed;
+  z-index: 4;
+  right: 0;
+  bottom: 12px;
+  left: 0;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  margin: 0 auto;
+  padding: 6px 14px;
+  border: 1px solid rgba(214, 242, 211, 0.16);
+  border-radius: 999px;
+  background: rgba(15, 48, 24, 0.62);
+  box-shadow: 0 8px 24px rgba(3, 12, 7, 0.22);
+  backdrop-filter: blur(6px);
+  pointer-events: none;
 }
 
 .site-footer p {
   margin: 0;
-  color: rgba(222, 231, 242, 0.58);
+  color: rgba(236, 246, 235, 0.86);
+  line-height: 1.35;
+  text-shadow: 0 1px 4px rgba(3, 12, 7, 0.72);
+}
+
+/* Keep long and accented headings comfortably inside their line boxes on
+   narrow layouts and in the clipped project hero containers. */
+.hero-name,
+.section-heading,
+.card-body h3,
+.editorial-hero h1,
+.editorial-section-heading h2,
+.sdf-hero-title,
+.sdf-title,
+.recommendation-detail-title h1,
+.experience-title-group h3 {
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+.hero-name,
+.editorial-hero h1,
+.sdf-hero-title,
+.recommendation-detail-title h1 {
+  line-height: 1.02;
+  padding-block: 0.04em;
+}
+
+.section-heading,
+.editorial-section-heading h2,
+.sdf-title {
+  line-height: 1.08;
+  padding-block: 0.03em;
 }
 
 .sdf-inline-link {
@@ -3456,7 +3608,8 @@ p {
   font-size: clamp(2.35rem, 5vw, 5rem);
   font-weight: 760;
   letter-spacing: -0.06em;
-  line-height: 0.97;
+  line-height: 1.02;
+  padding-block: 0.04em;
 }
 
 .recommendation-detail-role {

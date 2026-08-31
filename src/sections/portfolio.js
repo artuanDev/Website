@@ -83,10 +83,15 @@ export function renderPortfolio() {
       "button",
       {
         class: `filter-btn${filter.id === activeFilter ? " active" : ""}`,
+        "aria-pressed": filter.id === activeFilter ? "true" : "false",
         onClick: (e) => {
           activeFilter = filter.id;
-          filterButtons.forEach((btn) => btn.classList.remove("active"));
+          filterButtons.forEach((btn) => {
+            btn.classList.remove("active");
+            btn.setAttribute("aria-pressed", "false");
+          });
           e.currentTarget.classList.add("active");
+          e.currentTarget.setAttribute("aria-pressed", "true");
           renderGrid();
         },
       },

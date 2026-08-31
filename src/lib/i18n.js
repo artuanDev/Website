@@ -35,7 +35,7 @@ export function initI18n() {
   document.documentElement.lang = currentLang;
 }
 
-// Dotted-path lookup, e.g. t('contact.formSubmit')
+// Dotted-path lookup, e.g. t('contact.heading')
 export function t(key) {
   const dict = dictionaries[currentLang] || dictionaries.en;
   const value = key.split(".").reduce((acc, part) => (acc == null ? acc : acc[part]), dict);
