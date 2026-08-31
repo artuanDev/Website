@@ -126,7 +126,7 @@ export function renderNav({
         onBrandClick();
       },
     },
-    "AM"
+    el("img", { class: "nav-brand-photo", src: "/profile.jpg", alt: "" })
   );
 
   const nav = el("header", { class: "site-nav" }, [
