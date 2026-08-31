@@ -212,6 +212,7 @@ h3.section-subheading {
 }
 
 .nav-brand {
+  position: relative;
   flex: 0 0 auto;
   overflow: hidden;
   padding: 0;
@@ -2507,18 +2508,19 @@ p {
 }
 
 .nav-brand-photo {
-  width: 100%;
+  position: absolute;
+  top: -24%;
+  left: 50%;
+  width: 162%;
   max-width: none;
-  height: 100%;
-  object-fit: cover;
-  object-position: 50% 22%;
-  transform: translateY(2px) scale(1.95);
-  transition: transform var(--transition);
+  height: auto;
+  transform: translateX(-50%);
+  transition: filter var(--transition);
 }
 
 .nav-brand:hover .nav-brand-photo,
 .nav-brand.active .nav-brand-photo {
-  transform: translateY(2px) scale(2.02);
+  filter: brightness(1.08);
 }
 
 .nav-links {
