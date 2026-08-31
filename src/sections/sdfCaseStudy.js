@@ -94,7 +94,7 @@ const sections = {
     eyebrow: "06 · Materials and lighting",
     title: "SDF surfaces that belong in a URP scene",
     mediaLabel: "URP Lit material examples",
-    imageLabel: "Left: SDF · Right: mesh geometry",
+    imageLabel: "Left: mesh geometry · Right: SDF",
     p1: "The built-in URP Lit path turns an analytic hit into Unity surface and lighting data. It supports base colour, tangent-space normal, metallic, separate roughness, occlusion, and emission.",
     p2: "Because there are no mesh UVs or tangents, textures use local-space triplanar projection. Each map has its own scale and offset. Normals are blended in local tangent planes and transformed correctly through rotation and non-uniform scale.",
     cards: [
@@ -197,7 +197,7 @@ const sectionsEs = {
     eyebrow: "06 · Materiales e iluminación",
     title: "Superficies SDF que pertenecen a una escena URP",
     mediaLabel: "Ejemplos de material URP Lit",
-    imageLabel: "Izquierda: SDF · Derecha: geometría de malla",
+    imageLabel: "Izquierda: geometría de malla · Derecha: SDF",
     p1: "La ruta URP Lit integrada convierte un impacto analítico en datos de superficie e iluminación de Unity. Admite color base, normales en espacio tangente, metalicidad, rugosidad independiente, oclusión y emisión.",
     p2: "Como no hay UV ni tangentes de malla, las texturas usan proyección triplanar en espacio local. Cada mapa tiene su propia escala y offset. Las normales se mezclan en planos tangentes locales y se transforman correctamente con rotación y escalado no uniforme.",
     cards: [
