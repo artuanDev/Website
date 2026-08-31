@@ -44,17 +44,19 @@ body {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background: linear-gradient(
-    to bottom,
-    #04060d 0%,
-    #060e22 24%,
-    #0b1d3c 46%,
-    #1c3f68 66%,
-    #355f8c 80%,
-    #5c82a6 88%,
-    #9a7f72 95%,
-    #c89a76 100%
-  );
+  background:
+    radial-gradient(ellipse at 25% 100%, rgba(255, 180, 112, 0.2) 0%, rgba(207, 132, 108, 0.08) 22%, transparent 48%),
+    linear-gradient(
+      to bottom,
+      #02040a 0%,
+      #060c1e 22%,
+      #0b1a38 44%,
+      #18395f 64%,
+      #315b82 79%,
+      #607e9b 89%,
+      #9b7c74 96%,
+      #d39b70 100%
+    );
   background-size: 100% 100%;
 }
 

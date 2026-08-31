@@ -1,101 +1,164 @@
 import * as THREE from "three";
-import { createStars, createGround, createGrass, createTree } from "./sceneObjects.js";
+import {
+  createStars,
+  createDawnGlow,
+  createHills,
+  createGround,
+  createGrass,
+  createTree,
+} from "./sceneObjects.js";
 
-// Full-page backdrop. A CSS gradient (#sky-bg in style.css) paints the sky
-// from deep space at the top to a warm dawn horizon at the bottom. This
-// Three.js layer adds faint twinkling stars high in the sky and a grassy
-// field with a low-poly tree that is ANCHORED TO THE BOTTOM OF THE PAGE:
-// on a tall, scrolling tab you scroll down through the sky to reach the field.
-//
-// The canvas itself stays viewport-sized (cheap to render); the field group is
-// shifted vertically based on scroll position so it lines up with the document
-// bottom. An orthographic camera (1 unit = 1px) keeps the tree flat on the
-// ground line with no perspective "floating".
+// The CSS layer supplies the long page-height sky gradient. This viewport-sized
+// Three.js scene supplies the moving, procedural detail and anchors the field
+// to the bottom of the document as the user scrolls toward it.
 const MAX_PIXEL_RATIO = 2;
 const MOBILE_BREAKPOINT = 768;
 const RESIZE_DEBOUNCE_MS = 150;
 
-const STARS_DESKTOP = 260;
-const STARS_MOBILE = 110;
-const GRASS_DESKTOP = 280;
-const GRASS_MOBILE = 110;
-
-// Pixels of bare ground left visible below the grass roots at the page bottom.
-const FIELD_BASE_PX = 70;
+const STARS_DESKTOP = 340;
+const STARS_MOBILE = 150;
+const GRASS_DESKTOP = 920;
+const GRASS_MOBILE = 330;
+const FIELD_BASE_PX = 82;
 
 let renderer = null;
 let scene = null;
 let camera = null;
 let stars = null;
-let field = null; // { group, grass: { mesh, data }, tree }
+let field = null;
 let animationId = null;
 let resizeTimer = null;
 let bodyObserver = null;
 let started = false;
 let failed = false;
-
 let cachedDocHeight = 0;
 let tabVisible = !document.hidden;
-const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const clock = new THREE.Clock();
-const dummy = new THREE.Object3D();
 
 function isMobile() {
   return window.innerWidth < MOBILE_BREAKPOINT;
 }
 
-function buildScene() {
-  for (const obj of [stars, field?.group]) {
-    if (obj) scene.remove(obj);
+function disposeMaterial(material) {
+  if (Array.isArray(material)) material.forEach(disposeMaterial);
+  else material?.dispose();
+}
+
+function disposeObject(object) {
+  object?.traverse((child) => {
+    child.geometry?.dispose();
+    disposeMaterial(child.material);
+  });
+}
+
+function clearScenery() {
+  if (stars) {
+    scene.remove(stars);
+    disposeObject(stars);
+    stars = null;
   }
+  if (field?.group) {
+    scene.remove(field.group);
+    disposeObject(field.group);
+    field = null;
+  }
+}
 
-  const w = window.innerWidth;
-  const h = window.innerHeight;
+function buildScene() {
+  clearScenery();
 
-  stars = createStars(isMobile() ? STARS_MOBILE : STARS_DESKTOP, { w, h });
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+  const mobile = isMobile();
+
+  stars = createStars(mobile ? STARS_MOBILE : STARS_DESKTOP, { w: width, h: height });
   stars.material.uniforms.uPixelRatio.value = renderer.getPixelRatio();
   scene.add(stars);
 
   const group = new THREE.Group();
-  group.add(createGround(w * 1.6, h));
 
-  const grass = createGrass(isMobile() ? GRASS_MOBILE : GRASS_DESKTOP, { width: w * 1.5 });
-  group.add(grass.mesh);
+  const dawnGlow = createDawnGlow(mobile ? 210 : 290);
+  dawnGlow.position.set(-width * (mobile ? 0.25 : 0.3), mobile ? 78 : 96, -12);
+  group.add(dawnGlow);
 
-  const tree = createTree(isMobile() ? 55 : 78);
-  tree.position.x = w * (isMobile() ? 0.28 : 0.33);
-  group.add(tree);
+  group.add(createHills(width * 1.45));
+  group.add(createGround(width * 1.6, height));
+
+  const backGrass = createGrass(Math.round((mobile ? GRASS_MOBILE : GRASS_DESKTOP) * 0.62), {
+    width: width * 1.52,
+    minHeight: mobile ? 22 : 24,
+    maxHeight: mobile ? 68 : 78,
+    zNear: -1.4,
+    zFar: -5.6,
+    seed: mobile ? 2603 : 4519,
+    palette: [0x376d3c, 0x719c52],
+  });
+  group.add(backGrass.mesh);
+
+  const trees = [];
+  if (!mobile) {
+    const distantTree = createTree(31, { seed: 813, distant: true, lean: -0.02 });
+    distantTree.position.x = -width * 0.37;
+    trees.push(distantTree);
+
+    const middleTree = createTree(42, { seed: 1521, distant: true, lean: 0.015 });
+    middleTree.position.x = width * 0.06;
+    trees.push(middleTree);
+  }
+
+  const mainTree = createTree(mobile ? 57 : 72, { seed: 3407, lean: -0.012 });
+  mainTree.position.x = width * (mobile ? 0.27 : 0.34);
+  trees.push(mainTree);
+  trees.forEach((tree) => group.add(tree));
+
+  const frontGrass = createGrass(Math.round((mobile ? GRASS_MOBILE : GRASS_DESKTOP) * 0.52), {
+    width: width * 1.52,
+    minHeight: mobile ? 36 : 40,
+    maxHeight: mobile ? 94 : 112,
+    zNear: 5.5,
+    zFar: -0.6,
+    seed: mobile ? 6221 : 9217,
+    palette: [0x23612f, 0x559e46],
+  });
+  group.add(frontGrass.mesh);
 
   scene.add(group);
-  field = { group, grass, tree };
+  field = { group, grasses: [backGrass, frontGrass], trees, dawnGlow };
 
-  layoutGrass(0);
   updateAnchor();
+  updateSceneMotion(0);
 }
 
-// Place the field so its ground line aligns with the bottom of the document:
-// fully visible when scrolled to the bottom, sliding off-screen below when
-// there is still more page beneath the viewport.
 function updateAnchor() {
   if (!field) return;
-  const vh = window.innerHeight;
-  const distFromBottom = Math.max(0, cachedDocHeight - (window.scrollY + vh));
-  field.group.position.y = -vh / 2 + (FIELD_BASE_PX - distFromBottom);
+  const viewportHeight = window.innerHeight;
+  const distanceFromBottom = Math.max(0, cachedDocHeight - (window.scrollY + viewportHeight));
+  field.group.position.y = -viewportHeight / 2 + (FIELD_BASE_PX - distanceFromBottom);
+
+  const scrollableDistance = Math.max(1, cachedDocHeight - viewportHeight);
+  const scrollProgress = THREE.MathUtils.clamp(window.scrollY / scrollableDistance, 0, 1);
+  if (stars) stars.material.uniforms.uOpacity.value = THREE.MathUtils.lerp(0.42, 0.18, scrollProgress);
 }
 
-function layoutGrass(time) {
-  const { mesh, data } = field.grass;
-  for (let i = 0; i < data.length; i++) {
-    const b = data[i];
-    const sway = Math.sin(time * b.swaySpeed + b.phase) * 0.16;
-    dummy.position.set(b.x, 0, b.z);
-    dummy.rotation.set(0, b.rotY, b.baseTilt + sway);
-    dummy.scale.set(b.widthScale, b.height / 100, 1);
-    dummy.updateMatrix();
-    mesh.setMatrixAt(i, dummy.matrix);
-  }
-  mesh.instanceMatrix.needsUpdate = true;
+function updateSceneMotion(time) {
+  if (stars) stars.material.uniforms.uTime.value = time;
+  if (!field) return;
+
+  field.grasses.forEach((grass) => {
+    grass.material.uniforms.uTime.value = time;
+  });
+  field.dawnGlow.material.uniforms.uTime.value = time;
+
+  field.trees.forEach((tree, index) => {
+    const phase = tree.userData.windPhase ?? index;
+    const baseRotation = tree.userData.baseRotation ?? 0;
+    tree.rotation.z = baseRotation + Math.sin(time * 0.38 + phase) * (index === field.trees.length - 1 ? 0.0055 : 0.0035);
+    if (tree.userData.canopy) {
+      tree.userData.canopy.rotation.z = Math.sin(time * 0.62 + phase * 1.3) * 0.008;
+    }
+  });
 }
 
 function renderFrame() {
@@ -106,21 +169,17 @@ function animate() {
   animationId = requestAnimationFrame(animate);
   if (!tabVisible) return;
 
-  const time = clock.getElapsedTime();
-  stars.material.uniforms.uTime.value = time;
-  layoutGrass(time);
-  if (field?.tree) field.tree.rotation.z = Math.sin(time * 0.5) * 0.02;
-
+  updateSceneMotion(clock.getElapsedTime());
   renderFrame();
 }
 
 function updateCamera() {
-  const w = window.innerWidth;
-  const h = window.innerHeight;
-  camera.left = -w / 2;
-  camera.right = w / 2;
-  camera.top = h / 2;
-  camera.bottom = -h / 2;
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+  camera.left = -width / 2;
+  camera.right = width / 2;
+  camera.top = height / 2;
+  camera.bottom = -height / 2;
   camera.updateProjectionMatrix();
 }
 
@@ -137,7 +196,7 @@ function handleResize() {
     resize();
     cachedDocHeight = document.documentElement.scrollHeight;
     buildScene();
-    if (reducedMotion) renderFrame();
+    renderFrame();
   }, RESIZE_DEBOUNCE_MS);
 }
 
@@ -148,6 +207,7 @@ function handleScroll() {
 
 function handleVisibilityChange() {
   tabVisible = !document.hidden;
+  if (tabVisible) clock.getDelta();
 }
 
 export function initThreeBackground() {
@@ -161,22 +221,30 @@ export function initThreeBackground() {
       return;
     }
 
-    const w = window.innerWidth;
-    const h = window.innerHeight;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
 
     scene = new THREE.Scene();
-    camera = new THREE.OrthographicCamera(-w / 2, w / 2, h / 2, -h / 2, -1000, 1000);
+    camera = new THREE.OrthographicCamera(-width / 2, width / 2, height / 2, -height / 2, -1000, 1000);
     camera.position.z = 10;
 
-    renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: "high-performance" });
+    renderer.setClearColor(0x000000, 0);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, MAX_PIXEL_RATIO));
-    renderer.setSize(w, h);
+    renderer.setSize(width, height);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.1;
 
-    // Cool ambient + a warm low "dawn" key light so the tree reads warm.
-    scene.add(new THREE.AmbientLight(0xb9c4dc, 1.0));
-    const dawn = new THREE.DirectionalLight(0xffd2a1, 1.05);
-    dawn.position.set(-4, 3, 6);
-    scene.add(dawn);
+    scene.add(new THREE.HemisphereLight(0xa9c8e6, 0x1b3822, 1.5));
+
+    const dawnLight = new THREE.DirectionalLight(0xffc184, 1.7);
+    dawnLight.position.set(-5, 4, 7);
+    scene.add(dawnLight);
+
+    const coolFill = new THREE.DirectionalLight(0x7ca8dc, 0.65);
+    coolFill.position.set(4, 2, 5);
+    scene.add(coolFill);
 
     cachedDocHeight = document.documentElement.scrollHeight;
     buildScene();
@@ -185,7 +253,6 @@ export function initThreeBackground() {
     window.addEventListener("scroll", handleScroll, { passive: true });
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
-    // Re-anchor the field when the page height changes (e.g. switching tabs).
     bodyObserver = new ResizeObserver(() => {
       cachedDocHeight = document.documentElement.scrollHeight;
       updateAnchor();
@@ -195,29 +262,28 @@ export function initThreeBackground() {
 
     if (reducedMotion) renderFrame();
     else animate();
-  } catch (err) {
+  } catch (error) {
     failed = true;
-    console.error("[three background] failed to initialize, skipping:", err);
+    console.error("[three background] failed to initialize, skipping:", error);
   }
 }
 
-// Kept for API compatibility with main.js. The backdrop is a persistent
-// full-page scene, so there's no hero element to track.
+// Retained for the route renderer API. The scene is tied to the document, not
+// to one route's hero element.
 export function observeHeroElement() {}
 
 export function destroyThreeBackground() {
   if (!started) return;
   cancelAnimationFrame(animationId);
+  clearTimeout(resizeTimer);
   window.removeEventListener("resize", handleResize);
   window.removeEventListener("scroll", handleScroll);
   document.removeEventListener("visibilitychange", handleVisibilityChange);
   bodyObserver?.disconnect();
-  stars?.geometry.dispose();
-  stars?.material.dispose();
-  field?.group.traverse((o) => {
-    if (o.geometry) o.geometry.dispose();
-    if (o.material) o.material.dispose();
-  });
+  clearScenery();
   renderer?.dispose();
+  renderer = null;
+  scene = null;
+  camera = null;
   started = false;
 }
