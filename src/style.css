@@ -1349,7 +1349,7 @@ h3.section-subheading {
   --sdf-panel: #111824;
   --sdf-panel-alt: #151f2e;
   --sdf-mint: #7cf6cf;
-  --sdf-coral: #ff7a62;
+  --sdf-amber: #f3cc76;
   --sdf-blue: #68a9ff;
   --sdf-line: rgba(255, 255, 255, 0.13);
   padding: 30px 24px 88px;
@@ -1638,7 +1638,7 @@ h3.section-subheading {
 }
 
 .sdf-kicker {
-  color: var(--sdf-coral) !important;
+  color: var(--sdf-amber) !important;
   font-weight: 750;
 }
 
@@ -1782,10 +1782,11 @@ h3.section-subheading {
 .sdf-note {
   margin-top: 24px;
   padding: 16px 18px;
-  border: 1px solid rgba(255, 122, 98, 0.3);
+  border: 1px solid rgba(243, 204, 118, 0.38);
+  border-left: 3px solid var(--sdf-amber);
   border-radius: 12px;
-  background: rgba(255, 122, 98, 0.085);
-  color: #ffddd6 !important;
+  background: rgba(243, 204, 118, 0.1);
+  color: #f8e3b0 !important;
   font-size: 0.88rem !important;
   line-height: 1.55 !important;
 }
