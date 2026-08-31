@@ -20,6 +20,7 @@ const STARS_MOBILE = 150;
 const GRASS_DESKTOP = 920;
 const GRASS_MOBILE = 330;
 const FIELD_BASE_PX = 82;
+const BACKGROUND_PREFERENCE_KEY = "portfolio:three-background";
 
 let renderer = null;
 let scene = null;
@@ -36,6 +37,40 @@ let tabVisible = !document.hidden;
 
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const clock = new THREE.Clock();
+
+function readBackgroundPreference() {
+  try {
+    return localStorage.getItem(BACKGROUND_PREFERENCE_KEY) !== "off";
+  } catch {
+    return true;
+  }
+}
+
+let backgroundPreference = readBackgroundPreference();
+
+function updateCanvasVisibility(enabled) {
+  const canvas = document.getElementById("bg-canvas");
+  canvas?.classList.toggle("is-disabled", !enabled);
+}
+
+export function isThreeBackgroundEnabled() {
+  return backgroundPreference;
+}
+
+export function setThreeBackgroundEnabled(enabled) {
+  const nextValue = Boolean(enabled);
+  backgroundPreference = nextValue;
+  try {
+    localStorage.setItem(BACKGROUND_PREFERENCE_KEY, nextValue ? "on" : "off");
+  } catch {
+    // The toggle still works for this page load if storage is unavailable.
+  }
+
+  updateCanvasVisibility(nextValue);
+  if (nextValue) initThreeBackground();
+  else destroyThreeBackground();
+  return nextValue;
+}
 
 function isMobile() {
   return window.innerWidth < MOBILE_BREAKPOINT;
@@ -211,8 +246,13 @@ function handleVisibilityChange() {
 }
 
 export function initThreeBackground() {
+  if (!backgroundPreference) {
+    updateCanvasVisibility(false);
+    return;
+  }
   if (started || failed) return;
   started = true;
+  updateCanvasVisibility(true);
 
   try {
     const canvas = document.getElementById("bg-canvas");
@@ -261,9 +301,14 @@ export function initThreeBackground() {
     bodyObserver.observe(document.body);
 
     if (reducedMotion) renderFrame();
-    else animate();
+    else {
+      clock.start();
+      animate();
+    }
   } catch (error) {
     failed = true;
+    started = false;
+    updateCanvasVisibility(false);
     console.error("[three background] failed to initialize, skipping:", error);
   }
 }
@@ -275,12 +320,14 @@ export function observeHeroElement() {}
 export function destroyThreeBackground() {
   if (!started) return;
   cancelAnimationFrame(animationId);
+  animationId = null;
   clearTimeout(resizeTimer);
   window.removeEventListener("resize", handleResize);
   window.removeEventListener("scroll", handleScroll);
   document.removeEventListener("visibilitychange", handleVisibilityChange);
   bodyObserver?.disconnect();
   clearScenery();
+  clock.stop();
   renderer?.dispose();
   renderer = null;
   scene = null;

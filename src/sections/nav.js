@@ -11,7 +11,15 @@ const NAV_ITEMS = [
   { id: "contact", key: "nav.contact" },
 ];
 
-export function renderNav({ activeSection, isHome, onNavClick, onLangSelect, onBrandClick }) {
+export function renderNav({
+  activeSection,
+  isHome,
+  onNavClick,
+  onLangSelect,
+  isThreeBackgroundEnabled,
+  onBackgroundToggle,
+  onBrandClick,
+}) {
   const linksList = el(
     "ul",
     { class: "nav-links", id: "nav-links" },
@@ -82,6 +90,30 @@ export function renderNav({ activeSection, isHome, onNavClick, onLangSelect, onB
     );
   }
 
+  function updateBackgroundToggle(enabled) {
+    backgroundToggle.classList.toggle("active", enabled);
+    backgroundToggle.setAttribute("aria-pressed", String(enabled));
+    backgroundToggle.title = t(enabled ? "nav.backgroundOn" : "nav.backgroundOff");
+  }
+
+  const backgroundToggle = el(
+    "button",
+    {
+      class: `background-toggle${isThreeBackgroundEnabled ? " active" : ""}`,
+      type: "button",
+      "aria-label": t("nav.backgroundLabel"),
+      "aria-pressed": String(isThreeBackgroundEnabled),
+      title: t(isThreeBackgroundEnabled ? "nav.backgroundOn" : "nav.backgroundOff"),
+      onClick: () => updateBackgroundToggle(onBackgroundToggle()),
+    },
+    [
+      el("span", { class: "background-toggle-label", "aria-hidden": "true" }, "3D"),
+      el("span", { class: "background-toggle-track", "aria-hidden": "true" }, [
+        el("span", { class: "background-toggle-thumb" }),
+      ]),
+    ]
+  );
+
   const brand = el(
     "a",
     {
@@ -98,7 +130,11 @@ export function renderNav({ activeSection, isHome, onNavClick, onLangSelect, onB
   );
 
   const nav = el("header", { class: "site-nav" }, [
-    el("div", { class: "nav-inner" }, [brand, linksList, el("div", { class: "nav-actions" }, [langSwitch, toggleBtn])]),
+    el("div", { class: "nav-inner" }, [
+      brand,
+      linksList,
+      el("div", { class: "nav-actions" }, [backgroundToggle, langSwitch, toggleBtn]),
+    ]),
   ]);
 
   return nav;

@@ -1,7 +1,12 @@
 import { el, clear } from "./lib/dom.js";
 import { initI18n, getLang, setLanguage, onLanguageChange, t } from "./lib/i18n.js";
 import { initRouter, navigateHome, navigateToSection } from "./lib/router.js";
-import { initThreeBackground, observeHeroElement } from "./three/background.js";
+import {
+  initThreeBackground,
+  isThreeBackgroundEnabled,
+  setThreeBackgroundEnabled,
+  observeHeroElement,
+} from "./three/background.js";
 
 import { renderNav } from "./sections/nav.js";
 import { renderHero } from "./sections/hero.js";
@@ -41,6 +46,10 @@ function handleLangSelect(lang) {
   if (lang !== getLang()) setLanguage(lang);
 }
 
+function handleBackgroundToggle() {
+  return setThreeBackgroundEnabled(!isThreeBackgroundEnabled());
+}
+
 // The section that should be highlighted in the nav for the current route.
 function activeSectionFor(route) {
   if (route.name === "section") return route.section;
@@ -60,6 +69,8 @@ function renderApp() {
       isHome: currentRoute.name === "home",
       onNavClick: handleNavClick,
       onLangSelect: handleLangSelect,
+      isThreeBackgroundEnabled: isThreeBackgroundEnabled(),
+      onBackgroundToggle: handleBackgroundToggle,
       onBrandClick: handleBrandClick,
     })
   );

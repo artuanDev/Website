@@ -12,6 +12,9 @@ export default {
     contact: "Contacto",
     langToggle: "EN",
     langLabel: "Elegir idioma",
+    backgroundLabel: "Fondo 3D",
+    backgroundOn: "Desactivar el fondo 3D para mejorar el rendimiento",
+    backgroundOff: "Activar el fondo 3D",
     langTitle: {
       en: "View in English",
       es: "Ver en español",

@@ -104,11 +104,16 @@ button {
    is positioned in JS to track the bottom of the document as you scroll. */
 #bg-canvas {
   position: fixed;
+  display: block;
   inset: 0;
   width: 100vw;
   height: 100vh;
   z-index: 1;
   pointer-events: none;
+}
+
+#bg-canvas.is-disabled {
+  display: none;
 }
 
 #app-root {
@@ -238,6 +243,77 @@ h3.section-subheading {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.background-toggle {
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
+  padding: 5px 9px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.025);
+  color: var(--text-muted);
+  transition: color var(--transition), background var(--transition), border-color var(--transition);
+}
+
+.background-toggle:hover {
+  border-color: rgba(124, 246, 207, 0.5);
+  color: var(--text);
+}
+
+.background-toggle-label {
+  font-size: 0.72rem;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+}
+
+.background-toggle-track {
+  position: relative;
+  width: 28px;
+  height: 16px;
+  border-radius: 999px;
+  background: rgba(163, 178, 199, 0.28);
+  transition: background var(--transition);
+}
+
+.background-toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #c7d0dc;
+  transition: background var(--transition), transform var(--transition);
+}
+
+.background-toggle.active {
+  border-color: rgba(124, 246, 207, 0.32);
+  color: var(--accent);
+}
+
+.background-toggle.active .background-toggle-track {
+  background: rgba(124, 246, 207, 0.35);
+}
+
+.background-toggle.active .background-toggle-thumb {
+  background: var(--accent);
+  transform: translateX(12px);
+}
+
+@media (max-width: 1040px) {
+  .nav-actions {
+    gap: 8px;
+  }
+
+  .background-toggle {
+    padding: 7px;
+  }
+
+  .background-toggle-label {
+    display: none;
+  }
 }
 
 /* Segmented language switch: both EN and ES are always shown, the active one
