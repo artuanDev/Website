@@ -342,7 +342,7 @@ const projects = [
         role: "Personal project — research, design, and implementation.",
       },
       es: {
-        title: "Coordenadas UV Alineadas con la luz",
+        title: "Coordenadas UV Alineadas con la Luz",
         summary: "Sistema de coordenadas UV alineadas con la luz en Unity que permite efectos procedurales de cross-hatching.",
         description:
           "Sistema de coordenadas UV alineadas con la luz (pantalla/dirección) implementado en Unity, usado para generar efectos procedurales como el cross-hatching que se mantienen coherentes con la dirección de la luz en lugar de las UV reales de la malla. Esto desacopla el detalle de sombreado estilizado del UV layout real de un modelo.\n\nProyecto personal de exploración de técnicas de sombreado procedural y no fotorrealista.",
