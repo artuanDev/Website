@@ -335,7 +335,7 @@ const projects = [
     links: { artstation: null, repo: null },
     i18n: {
       en: {
-        title: "Screen-Aligned UV Coordinates",
+        title: "Light-Aligned UV Coordinates",
         summary: "A light-aligned UV coordinate system in Unity enabling procedural cross-hatching effects.",
         description:
           "A light-aligned (screen/directional) UV coordinate system implemented in Unity, used to drive procedural effects such as cross-hatching that stay consistent with the light direction rather than the underlying mesh UVs. This decouples stylized shading detail from a model's actual UV layout.\n\nA personal project exploring procedural, non-photorealistic shading techniques.",
