@@ -23,6 +23,7 @@ Vite will print a local URL (typically `http://localhost:5173`). Open it in your
 ```
 public/
   assets/projects/<slug>/   project media (thumb, gallery images, video)
+  assets/articles/<slug>/   article media (thumb, figures)
   cv/                       downloadable CV PDFs (EN/ES)
   profile.jpg               About section portrait
 src/
@@ -38,6 +39,9 @@ See **HOW_TO_ADD_A_PROJECT.md** for a step-by-step guide to adding a new portfol
 
 All text content lives in `src/data/`:
 - `projects.js` — portfolio projects (see HOW_TO_ADD_A_PROJECT.md)
+- `articles.js` — written articles: metadata and the copy shown on the Articles grid card
+- `articleStories.js` — the body of each article, as an ordered list of blocks (paragraphs,
+  figures, code, notes...) in both languages
 - `experience.js` — work experience entries
 - `education.js` — education entries
 - `skills.js` — technical skills, soft skills, languages

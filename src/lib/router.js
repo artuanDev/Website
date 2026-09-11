@@ -3,9 +3,11 @@
 //   #/<section>          -> a single section shown as its own page/tab
 //                          (about, experience, education, portfolio, skills, contact)
 //   #/project/<slug>     -> project detail view
+//   #/article/<slug>     -> article detail view
 //   #/recommendation/<slug> -> recommendation detail view
 
 const PROJECT_ROUTE = /^#\/project\/(.+)$/;
+const ARTICLE_ROUTE = /^#\/article\/(.+)$/;
 const RECOMMENDATION_ROUTE = /^#\/recommendation\/(.+)$/;
 const SECTION_ROUTE = /^#\/([a-z]+)$/;
 
@@ -14,6 +16,7 @@ export const SECTION_IDS = [
   "experience",
   "education",
   "portfolio",
+  "articles",
   "recommendations",
   "skills",
   "contact",
@@ -24,6 +27,9 @@ let currentHandler = null;
 export function parseRoute(hash) {
   const match = PROJECT_ROUTE.exec(hash);
   if (match) return { name: "project", slug: decodeURIComponent(match[1]) };
+
+  const articleMatch = ARTICLE_ROUTE.exec(hash);
+  if (articleMatch) return { name: "article", slug: decodeURIComponent(articleMatch[1]) };
 
   const recommendationMatch = RECOMMENDATION_ROUTE.exec(hash);
   if (recommendationMatch) return { name: "recommendation", slug: decodeURIComponent(recommendationMatch[1]) };
@@ -47,6 +53,10 @@ export function initRouter(onRouteChange) {
 
 export function navigateToProject(slug) {
   window.location.hash = `#/project/${encodeURIComponent(slug)}`;
+}
+
+export function navigateToArticle(slug) {
+  window.location.hash = `#/article/${encodeURIComponent(slug)}`;
 }
 
 export function navigateToRecommendation(slug) {
