@@ -1,6 +1,7 @@
 import { el } from "../lib/dom.js";
 import { t, getLang } from "../lib/i18n.js";
 import { CONTACT, CV_PATHS } from "../config.js";
+import { renderQuickContact } from "./quickContact.js";
 
 function renderDirectLinks() {
   return el("div", { class: "contact-directory" }, [
@@ -55,6 +56,7 @@ export function renderContact() {
         ]),
         renderDirectLinks(),
       ]),
+      renderQuickContact(),
       renderCvDownload(),
     ]),
   ]);

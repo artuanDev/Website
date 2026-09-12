@@ -3,6 +3,15 @@ export const CV_PATHS = {
   es: "/cv/antonio-mata-marin-cv-es.pdf",
 };
 
+// Quick-contact form delivery. The access key is a public per-inbox token from
+// https://web3forms.com — it is meant to ship in client-side code. Set it in
+// `.env` as VITE_WEB3FORMS_KEY (see .env.example); without it the form renders
+// a "not configured" note instead of silently failing.
+export const WEB3FORMS = {
+  accessKey: import.meta.env.VITE_WEB3FORMS_KEY || "",
+  fromName: "Portfolio quick contact",
+};
+
 export const CONTACT = {
   email: "artoniodev@gmail.com",
   phone: "+34 640 60 48 14",
