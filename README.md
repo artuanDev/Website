@@ -65,8 +65,25 @@ The key is public by design (it ships inside the built bundle) and only ever del
 inbox it was issued for. Without it, the form renders a short "not configured yet" note with a
 mailto link rather than a form that fails on submit.
 
-Set the same `VITE_WEB3FORMS_KEY` variable in your host's build environment (Netlify, Vercel,
-Cloudflare Pages, GitHub Actions) so production builds pick it up too.
+### Why there are two env files
+
+Vite bakes env values into the bundle at **build time**, and `.env` is gitignored — so it never
+reaches the host that builds the deployed site. That is why the key lives in **two** places:
+
+| File | Committed? | Used for |
+| --- | --- | --- |
+| `.env` | No (gitignored) | Local `npm run dev` |
+| `.env.production` | **Yes** | Production builds on the host (Vercel, Netlify, …) |
+
+`.env.production` is committed deliberately. A Web3Forms access key is a public token — it ships
+inside the JavaScript every visitor downloads, so it is readable from the live site either way. It
+is not a password and grants no account access; it only delivers mail to the inbox it was issued
+for. Committing it means the deploy needs no dashboard configuration.
+
+If you would rather not keep it in the repo, delete `.env.production` and instead add
+`VITE_WEB3FORMS_KEY` as an environment variable in your host's project settings (on Vercel:
+Settings → Environment Variables), then redeploy. **To rotate the key, update both `.env` and
+`.env.production`.**
 
 Because there are no file uploads, the free Web3Forms plan covers this form. Submissions are sent
 as JSON with the sender's address set as `replyto`, so replying to the notification goes straight
