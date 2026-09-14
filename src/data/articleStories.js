@@ -512,21 +512,29 @@ const articleStories = {
         },
         {
           type: "p",
-          text: "A little more involved than the dot product, no doubt. Luckily, the actual Unity project does not reimplement all those components every time. In `MeshNormalsExample`, the heart of the operation is reduced to these three lines:",
+          text: "A little more involved than the dot product, no doubt. But it looks much friendlier inside a simple function and, this time... we'll use Python for the example!",
         },
         {
           type: "code",
-          label: "C# · MeshNormalsExample.cs",
+          label: "Python",
           code: [
-            "Vector3 edgeAB = pointB - pointA;",
-            "Vector3 edgeAC = pointC - pointA;",
-            "Vector3 faceNormal = Vector3.Cross(edgeAB, edgeAC).normalized;",
+            "def cross_product(a, b):",
+            "    result_x = (a.y * b.z) - (a.z * b.y)",
+            "    result_y = (a.z * b.x) - (a.x * b.z)",
+            "    result_z = (a.x * b.y) - (a.y * b.x)",
+            "",
+            "    return [result_x, result_y, result_z]",
           ].join("\n"),
         },
         {
           type: "note",
+          label: "About that Python",
+          text: "The example assumes `a` and `b` are vector objects with `.x`, `.y` and `.z` properties. If they are plain lists or tuples, use `a[0]`, `a[1]`, `a[2]` instead. The maths does not change.",
+        },
+        {
+          type: "note",
           label: "In practice",
-          text: "Even if I am explaining the guts of the function, you do not have to calculate it from zero. The repository uses `Vector3.Cross` in Unity; you also have `FVector::CrossProduct` in Unreal, `a.cross(b)` in Godot and `cross()` in HLSL and GLSL.",
+          text: "Luckily, even if I am explaining the guts of the function, you do not have to calculate it from zero. You already have `Vector3.Cross` in Unity, `FVector::CrossProduct` in Unreal, `a.cross(b)` in Godot, `cross()` in HLSL and GLSL, and `numpy.cross` in Python.",
         },
 
         { type: "chapter", number: "02", eyebrow: "The meaning", title: "Perpendicular — but pointing where?" },
@@ -735,21 +743,29 @@ const articleStories = {
         },
         {
           type: "p",
-          text: "Un poco más complicada que el producto escalar, sin duda. Por suerte, el proyecto real de Unity no vuelve a implementar todos esos componentes cada vez. En `MeshNormalsExample`, el núcleo de la operación queda reducido a estas tres líneas:",
+          text: "Un poco más complicada que el producto escalar, sin duda. Pero podemos verla mejor simplificada y aplicada a una función en un lenguaje sencillo como... ¡utilizaremos Python esta vez para el ejemplo!",
         },
         {
           type: "code",
-          label: "C# · MeshNormalsExample.cs",
+          label: "Python",
           code: [
-            "Vector3 edgeAB = pointB - pointA;",
-            "Vector3 edgeAC = pointC - pointA;",
-            "Vector3 faceNormal = Vector3.Cross(edgeAB, edgeAC).normalized;",
+            "def producto_vectorial(a, b):",
+            "    resultado_x = (a.y * b.z) - (a.z * b.y)",
+            "    resultado_y = (a.z * b.x) - (a.x * b.z)",
+            "    resultado_z = (a.x * b.y) - (a.y * b.x)",
+            "",
+            "    return [resultado_x, resultado_y, resultado_z]",
           ].join("\n"),
         },
         {
           type: "note",
+          label: "Sobre ese Python",
+          text: "El ejemplo da por hecho que `a` y `b` son objetos vector con propiedades `.x`, `.y` y `.z`. Si son listas o tuplas corrientes, habría que acceder con `a[0]`, `a[1]` y `a[2]`. Las matemáticas no cambian.",
+        },
+        {
+          type: "note",
           label: "En la práctica",
-          text: "Aunque esté explicando las tripas de la función, no tenéis por qué calcularla desde cero. El repositorio usa `Vector3.Cross` en Unity; también existen `FVector::CrossProduct` en Unreal, `a.cross(b)` en Godot y `cross()` en HLSL y GLSL.",
+          text: "Por suerte, aunque esté explicando las tripas de la función, no tenéis por qué calcularla desde cero. Ya existen `Vector3.Cross` en Unity, `FVector::CrossProduct` en Unreal, `a.cross(b)` en Godot, `cross()` en HLSL y GLSL y `numpy.cross` en Python.",
         },
 
         { type: "chapter", number: "02", eyebrow: "El significado", title: "Perpendicular... ¿pero apuntando hacia dónde?" },

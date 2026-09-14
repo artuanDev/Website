@@ -6,7 +6,7 @@ const articles = [
     id: "cross-product",
     date: "2026-09-14",
     readingMinutes: 10,
-    tags: ["Vector Maths", "Unity", "C#", "3D Graphics"],
+    tags: ["Vector Maths", "Unity", "Python", "C#"],
     thumb: "/assets/articles/cross-product/thumb.jpg",
     links: {
       repo: "https://github.com/artuanDev/ProductoVectorial",
