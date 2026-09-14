@@ -33,7 +33,7 @@ const articles = [
     date: "2026-09-11",
     readingMinutes: 8,
     tags: ["Unity", "Shader Graph", "C#", "HLSL"],
-    thumb: "/assets/articles/dot-product/thumb.png",
+    thumb: "/assets/articles/dot-product/thumb.jpg",
     links: {
       repo: "https://github.com/artuanDev/ArtculosStudies",
     },
