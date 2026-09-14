@@ -1,6 +1,12 @@
-export const CV_PATHS = {
-  en: "/cv/antonio-mata-marin-cv-en.pdf",
-  es: "/cv/antonio-mata-marin-cv-es.pdf",
+export const CV_FILES = {
+  en: {
+    path: "/cv/Antonio_Mata_CV_en_2026.pdf",
+    downloadName: "Antonio_Mata_CV_en_2026.pdf",
+  },
+  es: {
+    path: "/cv/Antonio_Mata_CV_es_2026.pdf",
+    downloadName: "Antonio_Mata_CV_es_2026.pdf",
+  },
 };
 
 // Quick-contact form delivery. The access key is a public per-inbox token from

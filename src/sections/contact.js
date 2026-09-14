@@ -1,6 +1,6 @@
 import { el } from "../lib/dom.js";
 import { t, getLang } from "../lib/i18n.js";
-import { CONTACT, CV_PATHS } from "../config.js";
+import { CONTACT, CV_FILES } from "../config.js";
 import { renderQuickContact } from "./quickContact.js";
 
 function renderDirectLinks() {
@@ -27,6 +27,7 @@ function renderDirectLinks() {
 
 function renderCvDownload() {
   const lang = getLang();
+  const cv = CV_FILES[lang];
   return el("div", { class: "cv-download" }, [
     el("div", {}, [
       el("p", { class: "cv-download-label" }, t("contact.cvHeading")),
@@ -34,7 +35,7 @@ function renderCvDownload() {
     ]),
     el(
       "a",
-      { class: "btn btn-secondary", href: CV_PATHS[lang], download: "" },
+      { class: "btn btn-secondary", href: cv.path, download: cv.downloadName },
       t("contact.downloadCv")
     ),
   ]);
