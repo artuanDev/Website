@@ -23,7 +23,7 @@ function renderCard(article, index) {
   return el(
     "article",
     {
-      class: "article-card",
+      class: `article-card article-card-${article.id}`,
       role: "button",
       tabindex: "0",
       onClick: openArticle,

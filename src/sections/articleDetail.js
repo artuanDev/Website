@@ -34,6 +34,19 @@ function renderFigure(figure, className = "article-figure") {
   ]);
 }
 
+function renderVideo(video) {
+  return el("figure", { class: "article-figure article-video" }, [
+    el("video", {
+      src: video.src,
+      poster: video.poster,
+      controls: "",
+      playsinline: "",
+      preload: "metadata",
+    }),
+    video.caption ? el("figcaption", {}, video.caption) : null,
+  ]);
+}
+
 function renderBlock(block) {
   switch (block.type) {
     case "lead":
@@ -73,6 +86,8 @@ function renderBlock(block) {
       return el("div", { class: "article-figure-pair" }, block.items.map((item) =>
         renderFigure(item, "article-figure article-figure-compact")
       ));
+    case "video":
+      return renderVideo(block);
     default:
       return null;
   }

@@ -3,6 +3,32 @@
 // articleStories.js, keyed by the same id.
 const articles = [
   {
+    id: "cross-product",
+    date: "2026-09-14",
+    readingMinutes: 10,
+    tags: ["Vector Maths", "Unity", "Python", "3D Graphics"],
+    thumb: "/assets/articles/cross-product/thumb.jpg",
+    links: {
+      repo: "https://github.com/artuanDev/ArtculosStudies",
+    },
+    i18n: {
+      en: {
+        title: "The Cross Product",
+        kicker: "Maths for real-time graphics",
+        displayDate: "September 2026",
+        summary:
+          "Two vectors go in and a third comes out, perpendicular to both. From left/right checks to mesh normals and camera orientation, this is where the cross product earns its keep.",
+      },
+      es: {
+        title: "El Producto Vectorial",
+        kicker: "Matemáticas para gráficos en tiempo real",
+        displayDate: "Septiembre de 2026",
+        summary:
+          "Entran dos vectores y sale un tercero, perpendicular a ambos. Desde saber qué queda a cada lado hasta calcular normales y orientar cámaras: aquí es donde el producto vectorial se gana el sueldo.",
+      },
+    },
+  },
+  {
     id: "dot-product",
     date: "2026-09-11",
     readingMinutes: 8,

@@ -4205,6 +4205,11 @@ p {
   backdrop-filter: blur(8px);
 }
 
+/* The supplied cross-product artwork carries its title across the top-left. */
+.article-card-cross-product .article-card-number {
+  top: 64px;
+}
+
 .article-card-media-meta {
   position: absolute;
   z-index: 1;
@@ -4619,6 +4624,14 @@ p {
 .article-figure img {
   width: 100%;
   display: block;
+}
+
+.article-video video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #05070a;
+  object-fit: contain;
 }
 
 .article-figure figcaption {
