@@ -35,6 +35,8 @@ jobs:
 
       - name: Build website
         run: npm run build
+        env:
+          VITE_BASE_PATH: /Website/
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v6
