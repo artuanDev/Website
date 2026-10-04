@@ -10,13 +10,13 @@ Updates is a casual feed for quick notes, things you're working on, interesting 
 - The owner account is created, confirmed, and activated. Owner-specific credentials are in the gitignored local `.env`.
 - The project URL and publishable key are configured in local env files and GitHub Pages Actions variables. Env files stay untracked. GitHub Pages receives website updates; the existing Vercel deployment remains available with automatic Git deployments disabled.
 - The owner password is saved as `BLOG_OWNER_INITIAL_PASSWORD` in the **gitignored local `.env` only**. It is not a `VITE_` variable and is not included in the browser build. Use it with the owner email after clicking **+** on Updates. Set a personal password through Supabase user management when ready, and update or remove the local password afterward.
-- The schema and initial published post are installed. All 15 database policy checks passed, and both security and performance advisors reported no findings.
+- The schema is installed. Updates starts empty; the owner writes their own posts. All 15 database policy checks passed, and both security and performance advisors reported no findings.
 - `node supabase/tests/live-blog-smoke.mjs` explicitly verifies real owner sign-in, membership, draft privacy, publication, unpublication, and token refresh. It deletes its temporary post and signs out afterward. It needs the owner credentials in local `.env`.
 
 ## Activate your owner account
 
 1. Create a Supabase project at https://supabase.com/dashboard.
-2. In its SQL Editor, run [supabase/schema.sql](supabase/schema.sql), then [supabase/seed.sql](supabase/seed.sql). The seed imports the first post with your two screenshots and preserves an existing version of that post.
+2. In its SQL Editor, run [supabase/schema.sql](supabase/schema.sql). [supabase/seed.sql](supabase/seed.sql) intentionally inserts no posts; Updates starts empty.
 3. In **Authentication → Users → Add user**, create your account with your email and a password. Confirm it in the dashboard if necessary. There is no public sign-up flow on this site. You can also disable new signups in Supabase Auth settings.
 4. In [supabase/activate-owner.sql](supabase/activate-owner.sql), replace `OWNER_EMAIL_HERE` with the owner's email in the SQL Editor, then run it. It locates that Auth user and grants owner access, and safely stops if the account does not exist. Keep the filled-in version local. Alternatively, copy that user's UUID and run:
 
@@ -40,9 +40,10 @@ Until this setup is complete, visitors can read the bundled caustics post and us
 
 ## Share an update
 
-- Open **Updates**, click **+**, and sign in as the owner. Type a note under **What's new?** and click **Post update**. No title, description or tags are required; the date and URL name are set automatically.
-- Paste links into your note to make them clickable. Open **Add a photo** to upload an image with a description.
-- **More options** contains optional titles, tags, translation, dates and links. Posts can be written in English or Spanish without requiring a translation. The URL name stays fixed after saving a post to the database.
+- Open **Updates**, click **+**, and sign in as the owner. English and Español are shown together: write each version yourself, then click **Post update** or press **Ctrl/⌘ + Enter**. You can leave either version blank. No titles or tags are required; the date and URL name are set automatically.
+- Paste links into your note to make them clickable. Each language has an **Add a photo** button: choose a file and it uploads directly into that version. Edit its description in the inserted image text if needed.
+- Check **Pin to top** to keep the update above unpinned posts. Pins are shared across both languages. Edit the update and uncheck it to return to date order.
+- **More options** contains optional English and Spanish titles, tags, dates and links. There is no automatic translation or copying between versions. Visitors see their selected language, or the other original version if theirs is empty. The URL name stays fixed after saving a post to the database.
 - Separate paragraphs with blank lines. Use `## Heading`, `**bold**`, inline backticks for code, or fenced code blocks. Raw HTML is displayed as text.
 - Choose an image, add its description/caption, and click **Add image**. It uploads to Supabase and is inserted into the body. The first upload also becomes the cover if you have not set one.
 - **Preview** shows the update, **Save draft** keeps it private, and **Post update** makes it public. For a published entry, **Save changes** updates it and **Unpublish to draft** hides it from visitors.

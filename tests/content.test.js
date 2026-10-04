@@ -8,6 +8,15 @@ import articles from "../src/data/articles.js";
 import en from "../src/data/i18n/en.js";
 import es from "../src/data/i18n/es.js";
 import { parseRoute } from "../src/lib/router.js";
+import { orderUpdates } from "../src/lib/updates.js";
+
+test("pinned updates stay above newer updates, with dates ordering each group", () => {
+  const posts = [{ id: "new", date: "2026-10-04" }, { id: "pin-old", date: "2020-01-01", pinned: true },
+    { id: "pin-new", date: "2025-01-01", pinned: true }, { id: "old", date: "2019-01-01" }];
+  assert.deepEqual(orderUpdates(posts).map(post => post.id), ["pin-new", "pin-old", "new", "old"]);
+  assert.equal(posts[0].id, "new", "sorting does not mutate saved posts");
+  assert.deepEqual(orderUpdates(posts.map(post => ({ ...post, pinned: false }))).map(post => post.id), ["new", "pin-new", "pin-old", "old"]);
+});
 
 test("Updates integrates composing and preserves old blog links", () => {
   assert.deepEqual(parseRoute("#/updates"), { name: "section", section: "updates" });
@@ -50,8 +59,8 @@ test("unfinished fenced code remains a code block", () => {
   assert.deepEqual(parseBlogBody("```csharp\nvar x = 1;"), [{ type: "code", label: "csharp", code: "var x = 1;" }]);
 });
 
-test("initial caustics post has both supplied images and bilingual content", () => {
-  const post = JSON.parse(readFileSync(new URL("../src/data/blog/faking-water-caustics.json", import.meta.url), "utf8"));
+test("mock post fixture has supplied images and bilingual content", () => {
+  const post = JSON.parse(readFileSync(new URL("./fixtures/faking-water-caustics.json", import.meta.url), "utf8"));
   assert.ok(post.published);
   assert.ok(post.tags.includes("Unity"));
   for (const language of ["en", "es"]) {

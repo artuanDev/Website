@@ -35,7 +35,7 @@ src/
 
 See **HOW_TO_ADD_A_PROJECT.md** for a step-by-step guide to adding a new portfolio project.
 
-See **[BLOG_SETUP.md](BLOG_SETUP.md)** to activate owner sign-in and share casual Updates directly on the website with Supabase. Click the **+** on Updates to post a quick note or photo; the editor opens on that page. Updates, Portfolio and Articles support tag filtering. Articles remain the place for longer professional write-ups.
+See **[BLOG_SETUP.md](BLOG_SETUP.md)** to activate owner sign-in and share casual Updates directly on the website with Supabase. Click the **+** on Updates to write your English and Spanish versions together; add a photo or select **Pin to top** if you like. The editor opens on that page, and Updates starts empty. Updates, Portfolio and Articles support tag filtering. Articles remain the place for longer professional write-ups.
 
 ## Editing content
 

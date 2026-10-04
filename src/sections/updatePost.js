@@ -28,15 +28,17 @@ function blockNode(block) {
 }
 
 export function renderUpdate(post, { owner = false, preview = false } = {}) {
-  const text = post.i18n[getLang()] || post.i18n.en;
-  const story = post.story[getLang()] || post.story.en;
+  const language = post.story[getLang()]?.blocks.length ? getLang() : getLang() === "en" ? "es" : "en";
+  const text = post.i18n[language] || post.i18n.en;
+  const story = post.story[language] || post.story.en;
   const date = post.date ? new Date(`${post.date}T12:00:00`).toLocaleDateString(getLang(), { day: "numeric", month: "short", year: "numeric" }) : "";
-  return el("article", { class: "update-post", "data-update-id": post.id }, [
+  return el("article", { class: `update-post${post.pinned ? " is-pinned" : ""}`, "data-update-id": post.id }, [
     el("header", { class: "update-meta" }, [
       preview ? el("time", { datetime: post.date }, date) : el("a", { href: `#/updates/${encodeURIComponent(post.id)}`, class: "update-permalink", "aria-label": `${t("blog.permalink")} ${date}` }, el("time", { datetime: post.date }, date)),
+      post.pinned ? el("span", { class: "update-pin-badge" }, t("blog.pinned")) : null,
       owner ? el("a", { class: "update-edit", href: `#/updates?edit=${encodeURIComponent(post.id)}` }, t("blog.edit")) : null,
     ]),
-    !post.autoTitle && text.title ? el("h2", { class: "update-title" }, text.title) : null,
+    !(post.autoTitles?.[language] ?? post.autoTitle) && text.title ? el("h2", { class: "update-title" }, text.title) : null,
     el("div", { class: "update-body" }, story.blocks.map(blockNode)),
     (post.tags?.length || post.links?.linkedin) ? el("footer", { class: "update-footer" }, [
       el("ul", { class: "update-tags" }, (post.tags || []).map(tag => el("li", {}, tag))),

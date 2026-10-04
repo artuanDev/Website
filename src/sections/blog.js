@@ -5,6 +5,18 @@ import { isBlogConfigured, listPublishedPosts, getPublishedPost, getOwner } from
 import { matchesTag } from "../lib/tags.js";
 import { renderTagFilter } from "./tagFilter.js";
 import { renderUpdate } from "./updatePost.js";
+import { orderUpdates } from "../lib/updates.js";
+
+function plusIcon() {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("width", "24"); svg.setAttribute("height", "24");
+  svg.setAttribute("aria-hidden", "true"); svg.setAttribute("focusable", "false");
+  const path = document.createElementNS(svg.namespaceURI, "path");
+  path.setAttribute("d", "M12 5v14M5 12h14"); path.setAttribute("stroke", "currentColor");
+  path.setAttribute("stroke-width", "2"); path.setAttribute("stroke-linecap", "round");
+  svg.appendChild(path); return svg;
+}
 
 export function renderBlog({ compose = false, postId = null } = {}) {
   const status = el("p", { class: "blog-load-status", role: "status" });
@@ -15,7 +27,7 @@ export function renderBlog({ compose = false, postId = null } = {}) {
     el("div", { class: "section-inner updates-inner" }, [
       el("header", { class: "updates-heading" }, [
         el("div", {}, [el("h1", { class: "section-heading" }, t("blog.heading")), el("p", { class: "section-subheading" }, t("blog.subheading"))]),
-        el("a", { class: "updates-add", href: "#/updates?compose", "aria-label": t("blog.write"), title: t("blog.write") }, el("span", { "aria-hidden": "true" }, "+")),
+        el("a", { class: "updates-add", href: "#/updates?compose", "aria-label": t("blog.write"), title: t("blog.write") }, plusIcon()),
       ]),
       composer, status, filters, feed,
     ]));
@@ -23,7 +35,7 @@ export function renderBlog({ compose = false, postId = null } = {}) {
   let revision = 0;
   function show(posts) {
     clear(filters);
-    const ordered = [...posts].sort((a, b) => b.date.localeCompare(a.date));
+    const ordered = orderUpdates(posts);
     function showFeed(tag) {
       clear(feed);
       const filtered = ordered.filter(post => matchesTag(post, tag));
