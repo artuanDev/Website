@@ -7,6 +7,7 @@ const NAV_ITEMS = [
   { id: "education", key: "nav.education" },
   { id: "portfolio", key: "nav.portfolio" },
   { id: "articles", key: "nav.articles" },
+  { id: "blog", key: "nav.blog" },
   { id: "recommendations", key: "nav.recommendations" },
   { id: "skills", key: "nav.skills" },
   { id: "contact", key: "nav.contact" },

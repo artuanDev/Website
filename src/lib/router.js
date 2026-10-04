@@ -8,6 +8,7 @@
 
 const PROJECT_ROUTE = /^#\/project\/(.+)$/;
 const ARTICLE_ROUTE = /^#\/article\/(.+)$/;
+const BLOG_ROUTE = /^#\/blog\/(.+)$/;
 const RECOMMENDATION_ROUTE = /^#\/recommendation\/(.+)$/;
 const SECTION_ROUTE = /^#\/([a-z]+)$/;
 
@@ -17,6 +18,7 @@ export const SECTION_IDS = [
   "education",
   "portfolio",
   "articles",
+  "blog",
   "recommendations",
   "skills",
   "contact",
@@ -30,6 +32,11 @@ export function parseRoute(hash) {
 
   const articleMatch = ARTICLE_ROUTE.exec(hash);
   if (articleMatch) return { name: "article", slug: decodeURIComponent(articleMatch[1]) };
+
+  const blogMatch = BLOG_ROUTE.exec(hash);
+  if (blogMatch) return { name: "blogPost", slug: decodeURIComponent(blogMatch[1]) };
+
+  if (hash === "#/write") return { name: "writer" };
 
   const recommendationMatch = RECOMMENDATION_ROUTE.exec(hash);
   if (recommendationMatch) return { name: "recommendation", slug: decodeURIComponent(recommendationMatch[1]) };
@@ -57,6 +64,10 @@ export function navigateToProject(slug) {
 
 export function navigateToArticle(slug) {
   window.location.hash = `#/article/${encodeURIComponent(slug)}`;
+}
+
+export function navigateToBlogPost(slug) {
+  window.location.hash = `#/blog/${encodeURIComponent(slug)}`;
 }
 
 export function navigateToRecommendation(slug) {

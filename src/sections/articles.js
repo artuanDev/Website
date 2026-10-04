@@ -1,15 +1,17 @@
-import { el } from "../lib/dom.js";
+import { el, clear } from "../lib/dom.js";
 import { t, getEntryText } from "../lib/i18n.js";
-import { navigateToArticle } from "../lib/router.js";
+import { navigateToArticle, navigateToBlogPost } from "../lib/router.js";
 import articles from "../data/articles.js";
+import { matchesTag } from "../lib/tags.js";
+import { renderTagFilter } from "./tagFilter.js";
 
 // Newest first, so the grid keeps itself ordered as articles are added.
 function orderArticles(list) {
   return [...list].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
 }
 
-function renderCard(article, index) {
-  const openArticle = () => navigateToArticle(article.id);
+function renderCard(article, index, collection) {
+  const openArticle = () => collection === "blog" ? navigateToBlogPost(article.id) : navigateToArticle(article.id);
 
   const thumbNode = article.thumb
     ? el("img", {
@@ -39,7 +41,7 @@ function renderCard(article, index) {
         thumbNode,
         el("span", { class: "article-card-number", "aria-hidden": "true" }, String(index + 1).padStart(2, "0")),
         el("div", { class: "article-card-media-meta" }, [
-          el("span", {}, t("articles.label")),
+          el("span", {}, t(`${collection}.label`)),
           el("span", {}, `${article.readingMinutes} ${t("articles.readingUnit")}`),
         ]),
       ]),
@@ -51,23 +53,41 @@ function renderCard(article, index) {
         el("h3", {}, getEntryText(article, "title")),
         el("p", { class: "article-card-summary" }, getEntryText(article, "summary")),
         el("ul", { class: "article-card-tags" }, article.tags.slice(0, 3).map((tag) => el("li", {}, tag))),
-        el("span", { class: "article-card-link" }, t("articles.readArticle")),
+        el("span", { class: "article-card-link" }, t(`${collection}.readArticle`)),
       ]),
     ]
   );
 }
 
 export function renderArticles() {
-  const ordered = orderArticles(articles);
+  return renderWritingCollection(articles, "articles");
+}
 
-  return el("section", { class: "section articles", id: "articles" }, [
+export function renderWritingCollection(entries, collection) {
+  const ordered = orderArticles(entries);
+  const grid = el("div", { class: "articles-grid" });
+  const count = el("p", { class: "collection-count", role: "status", "aria-live": "polite" });
+  const filter = renderTagFilter(entries, collection, (tag) => renderGrid(tag));
+
+  function renderGrid(tag) {
+    clear(grid);
+    const filtered = ordered.filter((entry) => matchesTag(entry, tag));
+    count.textContent = `${filtered.length} / ${entries.length} ${t(`filters.${collection}`)}`;
+    filtered.forEach((entry, index) => grid.appendChild(renderCard(entry, index, collection)));
+    if (!filtered.length) grid.appendChild(el("p", { class: "collection-empty" }, t(entries.length ? "filters.empty" : `${collection}.empty`)));
+  }
+  renderGrid(filter.selected);
+
+  return el("section", { class: `section articles ${collection}`, id: collection }, [
     el("div", { class: "section-inner" }, [
       el("header", { class: "articles-heading" }, [
-        el("p", { class: "articles-kicker" }, t("articles.kicker")),
-        el("h2", { class: "section-heading" }, t("articles.heading")),
-        el("p", { class: "section-subheading" }, t("articles.subheading")),
+        el("p", { class: "articles-kicker" }, t(`${collection}.kicker`)),
+        el("h2", { class: "section-heading" }, t(`${collection}.heading`)),
+        el("p", { class: "section-subheading" }, t(`${collection}.subheading`)),
       ]),
-      el("div", { class: "articles-grid" }, ordered.map(renderCard)),
+      filter.node,
+      count,
+      grid,
     ]),
   ]);
 }

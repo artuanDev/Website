@@ -17,6 +17,7 @@ import { renderPortfolio } from "./sections/portfolio.js";
 import { renderProjectDetail } from "./sections/projectDetail.js";
 import { renderArticles } from "./sections/articles.js";
 import { renderArticleDetail } from "./sections/articleDetail.js";
+import { renderBlog, renderBlogPost } from "./sections/blog.js";
 import { renderRecommendations } from "./sections/recommendations.js";
 import { renderRecommendationDetail } from "./sections/recommendationDetail.js";
 import { renderSkills } from "./sections/skills.js";
@@ -32,6 +33,7 @@ const SECTION_RENDERERS = {
   education: renderEducation,
   portfolio: renderPortfolio,
   articles: renderArticles,
+  blog: renderBlog,
   recommendations: renderRecommendations,
   skills: renderSkills,
   contact: renderContact,
@@ -57,6 +59,8 @@ function handleBackgroundToggle() {
 function activeSectionFor(route) {
   if (route.name === "section") return route.section;
   if (route.name === "article") return "articles";
+  if (route.name === "blogPost" || route.name === "writer") return "blog";
+  if (route.name === "project") return "portfolio";
   if (route.name === "recommendation") return "recommendations";
   return null;
 }
@@ -86,6 +90,16 @@ function renderApp() {
     observeHeroElement(null);
   } else if (currentRoute.name === "article") {
     main.appendChild(renderArticleDetail(currentRoute.slug));
+    observeHeroElement(null);
+  } else if (currentRoute.name === "blogPost") {
+    main.appendChild(renderBlogPost(currentRoute.slug));
+    observeHeroElement(null);
+  } else if (currentRoute.name === "writer") {
+    const mount = el("div");
+    main.appendChild(mount);
+    import("./sections/blogWriter.js").then(({ renderBlogWriter }) => {
+      if (mount.isConnected) mount.appendChild(renderBlogWriter());
+    });
     observeHeroElement(null);
   } else if (currentRoute.name === "recommendation") {
     main.appendChild(renderRecommendationDetail(currentRoute.slug));

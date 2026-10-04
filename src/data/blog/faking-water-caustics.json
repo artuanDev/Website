@@ -1,0 +1,114 @@
+{
+  "id": "faking-water-caustics",
+  "published": true,
+  "date": "2026-10-04",
+  "readingMinutes": 2,
+  "tags": [
+    "Unity",
+    "Shaders",
+    "Water",
+    "Caustics"
+  ],
+  "thumb": "/assets/blog/faking-water-caustics/water-result.png",
+  "links": {
+    "linkedin": "https://www.linkedin.com/feed/update/urn:li:activity:7512537707798044672/"
+  },
+  "i18n": {
+    "en": {
+      "title": "Faking caustic highlights for water",
+      "kicker": "Work in progress",
+      "displayDate": "October 4, 2026",
+      "summary": "A Unity water shader experiment: projecting world-space normals through a plane and using that projection to sample a caustics texture with triplanar mapping."
+    },
+    "es": {
+      "title": "Simulando reflejos cáusticos en el agua",
+      "kicker": "Trabajo en progreso",
+      "displayDate": "4 de octubre de 2026",
+      "summary": "Un experimento con un shader de agua en Unity: proyectar las normales en espacio global a trav?s de un plano y usar esa proyecci?n para muestrear una textura de c?usticas con mapeado triplanar."
+    }
+  },
+  "story": {
+    "en": {
+      "eyebrow": "Work in progress",
+      "blocks": [
+        {
+          "type": "lead",
+          "text": "I'm learning how to fake caustic highlights for water in Unity. This is a work in progress, exploring how to create the effect in a shader."
+        },
+        {
+          "type": "figure",
+          "src": "/assets/blog/faking-water-caustics/water-result.png",
+          "alt": "Unity water shader experiment in a basin, with caustic highlights visible beneath the surface.",
+          "caption": "The current water shader test, with the caustic pattern visible beneath the surface."
+        },
+        {
+          "type": "chapter",
+          "number": "01",
+          "eyebrow": "Current approach",
+          "title": "Projecting normals through a plane"
+        },
+        {
+          "type": "p",
+          "text": "The approach I'm learning uses world-space normals projected through a plane, sort of like a visor. I use that to calculate a triplanar projection in which to sample the caustics texture."
+        },
+        {
+          "type": "figure",
+          "src": "/assets/blog/faking-water-caustics/shader-graph.png",
+          "alt": "Overview of the Unity Shader Graph used for the water and caustics experiment.",
+          "caption": "An overview of the shader graph behind the experiment. Open the image to inspect the full graph."
+        },
+        {
+          "type": "chapter",
+          "number": "02",
+          "eyebrow": "Next step",
+          "title": "From faking the effect to simulating it"
+        },
+        {
+          "type": "p",
+          "text": "For now, I'm learning to fake the effect by sampling a caustics texture. I want to learn how to simulate caustics, though. That's the next direction I want to explore."
+        }
+      ]
+    },
+    "es": {
+      "eyebrow": "Trabajo en progreso",
+      "blocks": [
+        {
+          "type": "lead",
+          "text": "Estoy aprendiendo a simular visualmente los reflejos c?usticos del agua en Unity. Es un trabajo en progreso en el que exploro c?mo crear el efecto con un shader."
+        },
+        {
+          "type": "figure",
+          "src": "/assets/blog/faking-water-caustics/water-result.png",
+          "alt": "Experimento de shader de agua en Unity en una cubeta, con reflejos c?usticos visibles bajo la superficie.",
+          "caption": "La prueba actual del shader de agua, con el patr?n de c?usticas visible bajo la superficie."
+        },
+        {
+          "type": "chapter",
+          "number": "01",
+          "eyebrow": "Enfoque actual",
+          "title": "Proyectar normales a trav?s de un plano"
+        },
+        {
+          "type": "p",
+          "text": "El enfoque que estoy aprendiendo consiste en proyectar las normales en espacio global a trav?s de un plano, como una especie de visor. A partir de eso calculo una proyecci?n triplanar con la que muestrear la textura de c?usticas."
+        },
+        {
+          "type": "figure",
+          "src": "/assets/blog/faking-water-caustics/shader-graph.png",
+          "alt": "Vista general del Shader Graph de Unity utilizado para el experimento de agua y c?usticas.",
+          "caption": "Vista general del grafo del shader del experimento. Abre la imagen para inspeccionar el grafo completo."
+        },
+        {
+          "type": "chapter",
+          "number": "02",
+          "eyebrow": "Siguiente paso",
+          "title": "De imitar el efecto a simularlo"
+        },
+        {
+          "type": "p",
+          "text": "Por ahora estoy aprendiendo a imitar el efecto muestreando una textura de c?usticas. Aun as?, quiero aprender a simularlas. Esa es la siguiente direcci?n que me gustar?a explorar."
+        }
+      ]
+    }
+  }
+}

@@ -4744,15 +4744,72 @@ p {
   }
 }
 
-/* With the Articles tab added, the nav row needs a little more room to
-   breathe on laptop-sized screens before it collapses into the menu. */
-@media (min-width: 721px) and (max-width: 1080px) {
+/* Keep the full navigation comfortable with the Blog tab. */
+@media (min-width: 721px) and (max-width: 1280px) {
   .nav-links a {
-    padding: 9px 9px;
-    font-size: 0.78rem;
+    padding: 9px 6px;
+    font-size: 0.75rem;
   }
 
   .nav-actions {
     gap: 10px;
   }
+}
+
+/* Shared tag browsing and the owner's writing desk. */
+@media (min-width: 721px) and (max-width: 900px) {
+  .nav-links {
+    position: absolute;
+    top: 72px;
+    left: 0;
+    right: 0;
+    display: none;
+    flex-direction: column;
+    padding: 16px 24px;
+    gap: 6px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-toggle { display: flex; }
+  .site-nav.nav-open .nav-links { display: flex; }
+  .nav-links a { padding: 10px 14px; font-size: 0.9rem; }
+}
+.filter-label {
+  margin: 0 0 10px;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 650;
+}
+.tag-filter .filter-bar { margin-bottom: 14px; }
+.tag-filter .filter-btn { padding: 6px 12px; font-size: 0.8rem; }
+.collection-count, .blog-load-status { margin: 0 0 20px; color: var(--text-muted); font-size: 0.85rem; }
+.collection-empty { grid-column: 1 / -1; padding: 30px 0; color: var(--text-muted); }
+.filter-btn:focus-visible, .writer-form input:focus-visible, .writer-form textarea:focus-visible,
+.writer-form select:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.blog-owner-link { display: inline-flex; margin-bottom: 24px; font-size: 0.8rem; }
+.writer-login { max-width: 440px; }
+.writer-form { max-width: 900px; }
+.writer-field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; min-width: 0; }
+.writer-field label { font-size: 0.85rem; font-weight: 650; }
+.blog-writer input, .blog-writer textarea, .blog-writer select {
+  width: 100%; padding: 12px 14px; border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 10px; background: #111b2a; color: var(--text); font: inherit;
+}
+.blog-writer textarea { resize: vertical; line-height: 1.7; }
+.blog-writer button:disabled { opacity: 0.55; cursor: wait; }
+.writer-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.writer-actions, .writer-account { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 24px 0; }
+.writer-account { justify-content: space-between; }
+.writer-status, .writer-help { color: var(--text-muted); font-size: 0.85rem; }
+.writer-status { min-height: 1.7em; margin: 16px 0; }
+.writer-help { margin: -8px 0 24px; }
+.writer-upload { padding: 20px; margin: 24px 0; border: 1px solid rgba(255,255,255,0.14); border-radius: 12px; }
+.writer-upload input[type=file] { margin-bottom: 18px; }
+.writer-preview .article-shell { max-width: 100%; }
+.writer-preview .article-detail { padding-top: 28px; }
+[hidden] { display: none !important; }
+@media (max-width: 600px) {
+  .writer-field-row { grid-template-columns: 1fr; gap: 0; }
+  .writer-actions .btn { width: 100%; }
+  .tag-filter .filter-bar { gap: 6px; }
 }

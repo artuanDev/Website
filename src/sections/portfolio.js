@@ -2,6 +2,8 @@ import { el, clear } from "../lib/dom.js";
 import { t, getProjectText } from "../lib/i18n.js";
 import projects from "../data/projects.js";
 import { navigateToProject } from "../lib/router.js";
+import { matchesTag } from "../lib/tags.js";
+import { renderTagFilter } from "./tagFilter.js";
 
 const FILTERS = [
   { id: "all", key: "portfolio.filterAll" },
@@ -67,15 +69,24 @@ function renderCard(project) {
 
 export function renderPortfolio() {
   const grid = el("div", { class: "portfolio-grid" });
+  const count = el("p", { class: "collection-count", role: "status", "aria-live": "polite" });
+  const tagFilter = renderTagFilter(projects, "portfolio", (tag) => {
+    selectedTag = tag;
+    renderGrid();
+  });
+  let selectedTag = tagFilter.selected;
 
   function renderGrid() {
     clear(grid);
-    const filtered = activeFilter === "all"
+    const categorized = activeFilter === "all"
       ? orderProjects(projects)
       : activeFilter === "featured"
         ? orderProjects(projects.filter((project) => project.featuredRank != null))
         : projects.filter((project) => project.category === activeFilter);
+    const filtered = categorized.filter((project) => matchesTag(project, selectedTag));
+    count.textContent = `${filtered.length} / ${projects.length} ${t("filters.projects")}`;
     filtered.forEach((project) => grid.appendChild(renderCard(project)));
+    if (!filtered.length) grid.appendChild(el("p", { class: "collection-empty" }, t("filters.empty")));
   }
 
   const filterButtons = FILTERS.map((filter) =>
@@ -83,6 +94,7 @@ export function renderPortfolio() {
       "button",
       {
         class: `filter-btn${filter.id === activeFilter ? " active" : ""}`,
+        type: "button",
         "aria-pressed": filter.id === activeFilter ? "true" : "false",
         onClick: (e) => {
           activeFilter = filter.id;
@@ -105,7 +117,9 @@ export function renderPortfolio() {
     el("div", { class: "section-inner" }, [
       el("h2", { class: "section-heading" }, t("portfolio.heading")),
       el("p", { class: "section-subheading" }, t("portfolio.subheading")),
-      el("div", { class: "filter-bar" }, filterButtons),
+      el("div", { class: "filter-bar", role: "group", "aria-label": t("filters.projectType") }, filterButtons),
+      tagFilter.node,
+      count,
       grid,
     ]),
   ]);

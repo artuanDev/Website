@@ -29,7 +29,8 @@ function renderChapter(block) {
 
 function renderFigure(figure, className = "article-figure") {
   return el("figure", { class: className }, [
-    el("img", { src: figure.src, alt: figure.alt, loading: "lazy" }),
+    el("a", { href: figure.src, target: "_blank", rel: "noopener noreferrer", "aria-label": figure.alt },
+      el("img", { src: figure.src, alt: figure.alt, loading: "lazy" })),
     figure.caption ? el("figcaption", {}, figure.caption) : null,
   ]);
 }
@@ -93,15 +94,16 @@ function renderBlock(block) {
   }
 }
 
-function renderNotFound() {
+function renderNotFound(collection = "articles") {
+  const detailKey = collection === "blog" ? "blogDetail" : "articleDetail";
   return el("section", { class: "section article-not-found" }, [
     el("div", { class: "section-inner" }, [
-      el("h2", { class: "section-heading" }, t("articleDetail.notFound")),
+      el("h2", { class: "section-heading" }, t(`${detailKey}.notFound`)),
       el("button", {
         class: "btn btn-secondary",
         type: "button",
-        onClick: () => navigateToSection("articles"),
-      }, `← ${t("articleDetail.back")}`),
+        onClick: () => navigateToSection(collection),
+      }, `← ${t(`${detailKey}.back`)}`),
     ]),
   ]);
 }
@@ -113,6 +115,13 @@ export function renderArticleDetail(slug) {
   const language = getLang() === "es" ? "es" : "en";
   const story = articleStories[article.id]?.[language] || articleStories[article.id]?.en;
 
+  return renderWritingDetail(article, story);
+}
+
+export function renderWritingDetail(article, story, collection = "articles") {
+  if (!article) return renderNotFound(collection);
+  const detailKey = collection === "blog" ? "blogDetail" : "articleDetail";
+
   if (!story) {
     throw new Error(`Missing article body for "${article.id}"`);
   }
@@ -121,12 +130,12 @@ export function renderArticleDetail(slug) {
     el("div", { class: "article-shell" }, [
       el("a", {
         class: "back-link article-back-link",
-        href: "#/articles",
+        href: `#/${collection}`,
         onClick: (event) => {
           event.preventDefault();
-          navigateToSection("articles");
+          navigateToSection(collection);
         },
-      }, `← ${t("articleDetail.back")}`),
+      }, `← ${t(`${detailKey}.back`)}`),
 
       el("header", { class: "article-hero" }, [
         el("p", { class: "article-eyebrow" }, story.eyebrow),
@@ -143,10 +152,10 @@ export function renderArticleDetail(slug) {
 
       el("article", { class: "article-body" }, story.blocks.map(renderBlock)),
 
-      el("footer", { class: "article-footer" }, [
+      article.links?.repo || article.links?.linkedin ? el("footer", { class: "article-footer" }, [
         el("div", {}, [
-          el("p", { class: "article-eyebrow" }, t("articleDetail.source")),
-          el("p", {}, t("articleDetail.sourceNote")),
+          el("p", { class: "article-eyebrow" }, t(`${detailKey}.source`)),
+          el("p", {}, t(`${detailKey}.sourceNote`)),
         ]),
         article.links?.repo
           ? el("a", {
@@ -156,14 +165,17 @@ export function renderArticleDetail(slug) {
               rel: "noopener noreferrer",
             }, t("articleDetail.openRepo"))
           : null,
-      ]),
+        article.links?.linkedin
+          ? el("a", { class: "btn btn-secondary", href: article.links.linkedin, target: "_blank", rel: "noopener noreferrer" }, t("blogDetail.openLinkedIn"))
+          : null,
+      ]) : null,
 
       el("div", { class: "article-closing" }, [
         el("button", {
           class: "btn btn-secondary",
           type: "button",
-          onClick: () => navigateToSection("articles"),
-        }, `← ${t("articleDetail.back")}`),
+          onClick: () => navigateToSection(collection),
+        }, `← ${t(`${detailKey}.back`)}`),
       ]),
     ]),
   ]);

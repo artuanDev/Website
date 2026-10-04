@@ -35,6 +35,8 @@ src/
 
 See **HOW_TO_ADD_A_PROJECT.md** for a step-by-step guide to adding a new portfolio project.
 
+See **[BLOG_SETUP.md](BLOG_SETUP.md)** to activate owner sign-in and write/publish blog posts directly on the website with Supabase. Blog, Portfolio and Articles all support tag filtering.
+
 ## Editing content
 
 All text content lives in `src/data/`:
