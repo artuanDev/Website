@@ -8,7 +8,29 @@ import articles from "../src/data/articles.js";
 import en from "../src/data/i18n/en.js";
 import es from "../src/data/i18n/es.js";
 import { parseRoute } from "../src/lib/router.js";
-import { orderUpdates } from "../src/lib/updates.js";
+import { orderUpdates, localUpdateDate, normalizeUpdateUrlName, updateValidationError } from "../src/lib/updates.js";
+
+test("optional update metadata uses local dates and accepts casual URL names", () => {
+  assert.equal(localUpdateDate(new Date(2026, 9, 5, 0, 1)), "2026-10-05");
+  assert.equal(localUpdateDate(new Date(2026, 0, 2, 23, 59)), "2026-01-02");
+  assert.equal(normalizeUpdateUrlName("  My First Update!  "), "my-first-update");
+  assert.equal(normalizeUpdateUrlName("TÉST Progress __"), "test-progress");
+  assert.equal(normalizeUpdateUrlName("🚀"), "");
+  const long = normalizeUpdateUrlName("a".repeat(99) + " next part");
+  assert.equal(long, "a".repeat(99));
+});
+
+test("content, date, URL name and extra-link errors are distinguished", () => {
+  const post = { id: "my-first-update", date: "2026-10-05", story: { en: { blocks: [] },
+    es: { blocks: parseBlogBody("Estoy aprendiendo esto\n\n![foto](https://example.com/photo.png)") } } };
+  assert.equal(updateValidationError(post), null, "text plus a photo in either language is sufficient");
+  assert.equal(updateValidationError({ ...post, story: { es: { blocks: parseBlogBody("![foto](https://example.com/photo.png)") } } }), null, "a photo alone is sufficient");
+  assert.equal(updateValidationError({ ...post, date: "2026-02-30" }), "invalidDate", "a date problem is not reported as missing content");
+  assert.equal(updateValidationError({ ...post, date: "2024-02-29" }), null);
+  assert.equal(updateValidationError({ ...post, id: "My First Update" }), "invalidSlug");
+  assert.equal(updateValidationError({ ...post, links: { linkedin: "https://" } }), "unsafeUrl");
+  assert.equal(updateValidationError({ ...post, story: { en: { blocks: [] }, es: { blocks: [] } } }), "emptyUpdate");
+});
 
 test("pinned updates stay above newer updates, with dates ordering each group", () => {
   const posts = [{ id: "new", date: "2026-10-04" }, { id: "pin-old", date: "2020-01-01", pinned: true },

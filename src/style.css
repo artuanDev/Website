@@ -4866,6 +4866,7 @@ p {
   border-radius: 10px; background: #111b2a; color: var(--text); font: inherit;
 }
 .blog-writer textarea { resize: vertical; line-height: 1.7; }
+.blog-writer [aria-invalid=true] { border-color: #d77487; }
 .blog-writer button:disabled { opacity: 0.55; cursor: wait; }
 .writer-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 .writer-actions, .writer-account { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 24px 0; }

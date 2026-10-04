@@ -205,7 +205,8 @@ try {
   await click("Post update");
   await wait("document.querySelector('.writer-form .writer-status').getAttribute('role')==='alert'");
   assert.equal(await evaluate("window.mockSaveAttempts||0"), 0, "empty updates display validation without an API call");
-  assert.equal(await evaluate("document.activeElement.className"), "writer-status", "validation brings the error into focus");
+  assert.equal(await evaluate("document.activeElement.id"), "writer-body-en", "missing content focuses a writing field");
+  assert.equal(await evaluate("document.querySelector('.writer-form .writer-status').textContent"), "Write your update in English or Spanish, or add a photo to either version.");
   assert.ok(await evaluate("document.querySelector('.writer-actions a').textContent==='Back to Updates'"), "a way out is next to the posting actions");
   await fill("writer-title-en", "Test progress update"); await fill("writer-slug", "test-progress");
   await fill("writer-tags", "Unity, Python");
@@ -251,10 +252,25 @@ try {
   await wait("document.getElementById('writer-body-en').value.includes('https://blog.test/')");
   assert.equal(await evaluate("document.getElementById('writer-body-es').value"), "Estoy probando una cosa. Esta versión la escribí yo.", "photo goes into the selected version only");
   assert.equal(await evaluate("window.mockUploads"), 1);
+  await fill("writer-slug", "Faking Water Caustics");
+  const beforeConflict = await evaluate("window.mockSaveAttempts||0");
+  await click("Save draft");
+  await wait("document.querySelector('.writer-status').textContent.includes('belongs to another update')");
+  assert.equal(await evaluate("window.mockSaveAttempts||0"), beforeConflict, "a new post cannot overwrite another URL");
+  assert.equal(await evaluate("document.querySelector('.update-options').open"), true, "a metadata error reveals the affected field");
+  assert.equal(await evaluate("document.activeElement.id"), "writer-slug");
+  assert.equal(await evaluate("document.getElementById('writer-slug').getAttribute('aria-invalid')"), "true");
+  await fill("writer-slug", "  TÉST Progress __ ");
+  await fill("writer-date", "");
   await writeFile(join(artifacts, "writer-desktop.png"), Buffer.from((await command("Page.captureScreenshot", { format: "png" })).data, "base64"));
   await click("Preview"); await wait("!document.querySelector('.writer-preview').hidden");
   assert.equal(await evaluate("document.querySelector('.writer-preview .update-title').textContent"), "Test progress update");
   await click("Continue editing");
+  await fill("writer-source", "http://example.com");
+  await click("Save draft");
+  await wait("document.querySelector('.writer-status').textContent.startsWith('Use a complete HTTPS URL')");
+  assert.equal(await evaluate("document.activeElement.id"), "writer-source", "an extra-link error identifies the link rather than blaming content");
+  await fill("writer-source", "");
   await evaluate("window.mockSaveFailure=true");
   await click("Save draft");
   await wait("document.querySelector('.writer-form .writer-status').dataset.state==='error'");
@@ -266,6 +282,9 @@ try {
   assert.equal(await evaluate("JSON.parse(localStorage.getItem('portfolio:post-backups:owner-id')).__new.id"), "test-progress", "an empty response is not success and preserves recovery data");
   await evaluate("window.mockSaveEmptyResult=false");
   await click("Save draft"); await wait("document.querySelector('.writer-status').textContent.startsWith('Draft saved')");
+  assert.equal(await evaluate("document.getElementById('writer-slug').value"), "test-progress", "spaces, accents and capitals in a new URL name are cleaned up");
+  assert.ok(await evaluate("/^\\d{4}-\\d{2}-\\d{2}$/.test(document.getElementById('writer-date').value)"), "a cleared optional date is filled automatically");
+  assert.ok(await evaluate("window.mockPosts.find(post=>post.id==='test-progress').story.en.blocks.some(block=>block.type==='figure')"), "the filled text and uploaded photo can be saved with automatic metadata");
   assert.equal(await evaluate("document.querySelector('.writer-publication-state').dataset.published"), "false");
   await route("#/updates", ".updates-feed");
   await wait("document.querySelectorAll('.update-post').length===1");
@@ -385,7 +404,7 @@ try {
   await click("Sign out"); await wait("!!document.querySelector('.writer-login')");
   assert.equal(await evaluate("localStorage.getItem('portfolio:owner-session')"), null);
   assert.deepEqual(errors, [], "no runtime errors");
-  console.log("PASS: bilingual editing, photos, drafts, pinning, publishing confirmation and navigation, visible errors, retries without duplicates, missing-public-post checks, deletion, password changes and sign-out (mock API)");
+  console.log("PASS: bilingual posts and photos with automatic dates and cleaned-up URLs, precise field errors, duplicate URL protection, publishing confirmation, retries, pinning, deletion, passwords and sign-out (mock API)");
   console.log(`Screenshots: ${artifacts}`);
 } finally {
   if (socket?.readyState === WebSocket.OPEN) socket.send(JSON.stringify({ id: 999999, method: "Browser.close" }));

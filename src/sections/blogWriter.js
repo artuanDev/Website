@@ -3,12 +3,14 @@ import { t, getLang } from "../lib/i18n.js";
 import { isBlogConfigured, getOwner, signInOwner, signOutOwner, changeOwnerPassword, listOwnerPosts, savePost, deletePost, uploadPostImage } from "../lib/blogApi.js";
 import { parseBlogBody, serializeBlogBody } from "../lib/blogMarkdown.js";
 import { renderUpdate } from "./updatePost.js";
+import { localUpdateDate, normalizeUpdateUrlName, updateValidationError } from "../lib/updates.js";
 
 const ERROR_KEYS = new Set(["blogNotConfigured", "blogSessionExpired", "blogNotOwner", "blogRequestFailed", "blogInvalidImage", "blogWeakPassword", "blogSamePassword", "blogPasswordReauth"]);
 const errorText = error => t(`writer.errors.${ERROR_KEYS.has(error.message) ? error.message : "generic"}`);
 const copy = value => JSON.parse(JSON.stringify(value));
-const today = () => new Date().toLocaleDateString("sv-SE");
+const today = localUpdateDate;
 const LANGUAGES = ["en", "es"];
+const VALIDATION_KEYS = new Set(["emptyUpdate", "invalidSlug", "duplicateSlug", "invalidDate", "unsafeUrl"]);
 
 function field(key, node, label = t(`writer.${key}`)) {
   node.id = `writer-${key}`;
@@ -56,7 +58,7 @@ export function renderBlogWriter({ postId = null, onChange = () => {} } = {}) {
     try { backups = JSON.parse(localStorage.getItem(backupKey)) || {}; } catch { backups = {}; }
     let current, originalId = null, busy = false, uploadLanguage = "en";
     const selector = el("select");
-    const status = el("p", { class: "writer-status", role: "status", "aria-live": "polite", tabindex: "-1" });
+    const status = el("p", { id: "writer-save-status", class: "writer-status", role: "status", "aria-live": "polite", tabindex: "-1" });
     const publicationState = el("p", { class: "writer-publication-state" });
     const form = el("form", { class: "writer-form", onSubmit: event => event.preventDefault() });
     const preview = el("div", { class: "writer-preview", hidden: "" });
@@ -65,11 +67,15 @@ export function renderBlogWriter({ postId = null, onChange = () => {} } = {}) {
     })]));
     const titles = Object.fromEntries(LANGUAGES.map(language => [language, el("input", { type: "text", lang: language, maxlength: "160" })]));
     const pinned = el("input", { type: "checkbox", id: "writer-pinned" });
-    const slug = el("input", { type: "text", pattern: "[a-z0-9]+(-[a-z0-9]+)*", maxlength: "100" });
+    const slug = el("input", { type: "text", maxlength: "100", placeholder: t("writer.slugPlaceholder") });
     const date = el("input", { type: "date" });
     const tags = el("input", { type: "text", placeholder: "Unity, Shaders, Water" });
     const source = el("input", { type: "url" });
     const actions = [];
+    const validationFields = { emptyUpdate: bodies[getLang()], invalidSlug: slug, duplicateSlug: slug, invalidDate: date, unsafeUrl: source };
+    function clearValidation(control) {
+      control.removeAttribute("aria-invalid"); control.removeAttribute("aria-describedby");
+    }
 
     function showStatus(message, state = "info") {
       status.textContent = message; status.dataset.state = state;
@@ -81,7 +87,7 @@ export function renderBlogWriter({ postId = null, onChange = () => {} } = {}) {
       try { localStorage.setItem(backupKey, JSON.stringify(backups)); } catch { /* Database saves remain available. */ }
     }
     function capture() {
-      current.id = slug.value.trim(); current.date = date.value; current.pinned = pinned.checked;
+      current.id = slug.value.trim(); current.date = date.value || today(); current.pinned = pinned.checked;
       current.tags = [...new Set(tags.value.split(",").map(tag => tag.trim()).filter(Boolean))];
       current.links = { ...current.links, linkedin: source.value.trim() };
       current.autoTitles = {};
@@ -90,7 +96,7 @@ export function renderBlogWriter({ postId = null, onChange = () => {} } = {}) {
         const note = blocks.filter(block => block.text).map(block => block.text).join(" ").replace(/\s+/g, " ").trim();
         current.autoTitles[language] = !titles[language].value.trim();
         current.i18n[language] = { title: titles[language].value.trim() || note.slice(0, 90), summary: note.slice(0, 180),
-          displayDate: date.value ? new Date(`${date.value}T12:00:00`).toLocaleDateString(language, { day: "numeric", month: "long", year: "numeric" }) : "" };
+          displayDate: new Date(`${current.date}T12:00:00`).toLocaleDateString(language, { day: "numeric", month: "long", year: "numeric" }) };
         current.story[language] = { blocks };
       });
       current.autoTitle = LANGUAGES.every(language => current.autoTitles[language]);
@@ -111,11 +117,12 @@ export function renderBlogWriter({ postId = null, onChange = () => {} } = {}) {
         bodies[language].value = serializeBlogBody(current.story[language]?.blocks);
         titles[language].value = (current.autoTitles?.[language] ?? current.autoTitle) ? "" : current.i18n[language]?.title || "";
       });
-      slug.value = current.id; date.value = current.date; tags.value = current.tags.join(", ");
+      slug.value = current.id; date.value = current.date || today(); tags.value = current.tags.join(", ");
       source.value = current.links?.linkedin || ""; pinned.checked = current.pinned === true;
       slug.disabled = posts.some(post => post.id === id);
       heading.textContent = t(id ? "writer.editHeading" : "writer.heading");
       showStatus(restored ? t("writer.restored") : "");
+      Object.values(validationFields).forEach(clearValidation);
       form.hidden = false; preview.hidden = true; updateActions();
     }
     function updateSelector(selected = "") {
@@ -128,20 +135,24 @@ export function renderBlogWriter({ postId = null, onChange = () => {} } = {}) {
       form.querySelectorAll("input, textarea, button").forEach(control => { control.disabled = value; });
       if (!value) { slug.disabled = posts.some(post => post.id === originalId); updateActions(); }
     }
-    function validate(post) {
-      if (!LANGUAGES.some(language => post.story[language]?.blocks.length) ||
-        !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(post.id) || !/^\d{4}-\d{2}-\d{2}$/.test(post.date)) throw new Error("validation");
-      if (post.links?.linkedin && !/^https:\/\//.test(post.links.linkedin)) throw new Error("unsafeUrl");
-    }
     async function save(published) {
       if (busy) return;
       try {
+        Object.values(validationFields).forEach(clearValidation);
+        checkpoint();
+        if (date.validity.badInput) throw new Error("invalidDate");
+        if (!date.value) date.value = today();
+        if (!posts.some(post => post.id === originalId)) slug.value = normalizeUpdateUrlName(slug.value);
         checkpoint();
         if (!current.id) {
           slug.value = `update-${Date.now().toString(36)}-${crypto.randomUUID().slice(0, 8)}`;
           checkpoint(); // Reuse this ID if a timed-out request needs to be retried.
         }
-        const post = copy(current); validate(post); post.published = published;
+        const post = copy(current);
+        const validationError = updateValidationError(post);
+        if (validationError) throw new Error(validationError);
+        if (post.id !== originalId && known.has(post.id)) throw new Error("duplicateSlug");
+        post.published = published;
         setBusy(true); showStatus(t(published ? "writer.publishing" : "writer.busy"), "busy");
         if (published) (current.published ? saveButton : publishButton).textContent = t("writer.publishing");
         else saveButton.textContent = t("writer.busy");
@@ -153,7 +164,13 @@ export function renderBlogWriter({ postId = null, onChange = () => {} } = {}) {
         if (published) window.location.hash = `#/updates?published=${encodeURIComponent(saved.id)}`;
         else { showStatus(t("writer.saved"), "success"); onChange(); }
       } catch (error) {
-        showStatus(["validation", "unsafeUrl"].includes(error.message) ? t(`writer.${error.message}`) : errorText(error), "error");
+        showStatus(VALIDATION_KEYS.has(error.message) ? t(`writer.${error.message}`) : errorText(error), "error");
+        const control = validationFields[error.message];
+        if (control) {
+          if (options.contains(control)) options.open = true;
+          control.setAttribute("aria-invalid", "true"); control.setAttribute("aria-describedby", status.id);
+          control.focus(); control.scrollIntoView({ block: "center", behavior: "smooth" });
+        }
         if (error.message === "blogSessionExpired") login(errorText(error));
       } finally { setBusy(false); }
     }
@@ -256,11 +273,15 @@ export function renderBlogWriter({ postId = null, onChange = () => {} } = {}) {
       deleteButton.hidden = !posts.some(post => post.id === originalId); newButton.hidden = !originalId;
     }
     selector.addEventListener("change", () => { checkpoint(); selectPost(selector.value); });
-    [...Object.values(bodies), ...Object.values(titles), slug, date, tags, source].forEach(control => control.addEventListener("input", checkpoint));
+    [...Object.values(bodies), ...Object.values(titles), slug, date, tags, source].forEach(control => control.addEventListener("input", () => { clearValidation(control); checkpoint(); }));
     pinned.addEventListener("change", checkpoint);
     form.addEventListener("keydown", event => {
       if ((event.ctrlKey || event.metaKey) && event.key === "Enter") { event.preventDefault(); save(true); }
     });
+    const options = el("details", { class: "update-options" }, [el("summary", {}, t("writer.options")),
+      el("div", { class: "writer-field-row" }, [field("title-en", titles.en, t("writer.titleEn")), field("title-es", titles.es, t("writer.titleEs"))]),
+      field("tags", tags), el("div", { class: "writer-field-row" }, [field("slug", slug), field("date", date)]),
+      el("p", { class: "writer-help" }, t("writer.metadataHelp")), field("source", source)]);
     form.append(
       el("div", { class: "update-language-panes" }, LANGUAGES.map(language => el("div", { class: "update-language-pane" }, [
         field(`body-${language}`, bodies[language], language === "en" ? "English" : "Español"), photoButtons[language],
@@ -270,9 +291,7 @@ export function renderBlogWriter({ postId = null, onChange = () => {} } = {}) {
       status,
       el("div", { class: "writer-actions" }, [publishButton, saveButton, previewButton, unpublishButton, deleteButton,
         el("a", { class: "btn btn-secondary", href: "#/updates" }, t("writer.backToUpdates"))]),
-      el("details", { class: "update-options" }, [el("summary", {}, t("writer.options")),
-        el("div", { class: "writer-field-row" }, [field("title-en", titles.en, t("writer.titleEn")), field("title-es", titles.es, t("writer.titleEs"))]),
-        field("tags", tags), el("div", { class: "writer-field-row" }, [field("slug", slug), field("date", date)]), field("source", source)]),
+      options,
     );
     content.append(el("div", { class: "writer-account" }, [newButton,
       el("div", { class: "update-account-actions" }, [changePassword, signOut])]), publicationState, form, preview,
