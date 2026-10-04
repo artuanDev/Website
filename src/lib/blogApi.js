@@ -30,7 +30,9 @@ async function request(path, { token, headers = {}, ...options } = {}) {
   try { result = body ? JSON.parse(body) : null; } catch { result = null; }
   if (!response.ok) {
     if (response.status === 401) { storeSession(null); throw new Error("blogSessionExpired"); }
-    throw new Error(result?.msg || result?.message || result?.error_description || "blogRequestFailed");
+    const error = new Error(result?.msg || result?.message || result?.error_description || "blogRequestFailed");
+    error.code = result?.code || result?.error_code;
+    throw error;
   }
   return result;
 }
@@ -72,6 +74,19 @@ export async function getOwner() {
   const token = await accessToken();
   const owners = await request(`/rest/v1/site_owners?select=user_id&user_id=eq.${encodeURIComponent(session.user.id)}`, { token });
   return owners.length ? session.user : null;
+}
+
+export async function changeOwnerPassword(password) {
+  if (!await getOwner()) throw new Error("blogNotOwner");
+  try {
+    await request("/auth/v1/user", {
+      token: await accessToken(), method: "PUT",
+      headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password }),
+    });
+  } catch (error) {
+    const messages = { weak_password: "blogWeakPassword", same_password: "blogSamePassword", reauthentication_needed: "blogPasswordReauth" };
+    throw new Error(messages[error.code] || error.message);
+  }
 }
 
 export async function listPublishedPosts() {

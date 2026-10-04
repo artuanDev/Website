@@ -1,10 +1,10 @@
 import { el, clear } from "../lib/dom.js";
 import { t, getLang } from "../lib/i18n.js";
-import { isBlogConfigured, getOwner, signInOwner, signOutOwner, listOwnerPosts, savePost, deletePost, uploadPostImage } from "../lib/blogApi.js";
+import { isBlogConfigured, getOwner, signInOwner, signOutOwner, changeOwnerPassword, listOwnerPosts, savePost, deletePost, uploadPostImage } from "../lib/blogApi.js";
 import { parseBlogBody, serializeBlogBody } from "../lib/blogMarkdown.js";
 import { renderUpdate } from "./updatePost.js";
 
-const ERROR_KEYS = new Set(["blogNotConfigured", "blogSessionExpired", "blogNotOwner", "blogRequestFailed", "blogInvalidImage"]);
+const ERROR_KEYS = new Set(["blogNotConfigured", "blogSessionExpired", "blogNotOwner", "blogRequestFailed", "blogInvalidImage", "blogWeakPassword", "blogSamePassword", "blogPasswordReauth"]);
 const errorText = error => t(`writer.errors.${ERROR_KEYS.has(error.message) ? error.message : "generic"}`);
 const copy = value => JSON.parse(JSON.stringify(value));
 const today = () => new Date().toLocaleDateString("sv-SE");
@@ -196,11 +196,43 @@ export function renderBlogWriter({ postId = null, onChange = () => {} } = {}) {
       if (busy) return;
       checkpoint(); updateSelector(); selectPost(""); bodies[getLang()].focus();
     } }, t("writer.newPost"));
+    const passwordDialog = el("dialog", { class: "writer-delete-dialog writer-password-dialog", "aria-labelledby": "writer-password-heading" });
+    const newPassword = el("input", { type: "password", autocomplete: "new-password", required: "", minlength: "8" });
+    const confirmPassword = el("input", { type: "password", autocomplete: "new-password", required: "", minlength: "8" });
+    const passwordStatus = el("p", { class: "writer-status", role: "status", "aria-live": "polite" });
+    const passwordCancel = el("button", { type: "button", class: "btn btn-secondary", onClick: () => passwordDialog.close() }, t("writer.cancel"));
+    const passwordSave = el("button", { type: "submit", class: "btn btn-primary" }, t("writer.savePassword"));
+    const passwordForm = el("form", { onSubmit: async event => {
+      event.preventDefault();
+      if (busy) return;
+      if (newPassword.value !== confirmPassword.value) { passwordStatus.textContent = t("writer.passwordMismatch"); confirmPassword.focus(); return; }
+      setBusy(true); passwordSave.disabled = passwordCancel.disabled = newPassword.disabled = confirmPassword.disabled = true;
+      passwordStatus.textContent = t("writer.passwordSaving");
+      try {
+        await changeOwnerPassword(newPassword.value);
+        passwordDialog.close(); status.textContent = t("writer.passwordChanged");
+      } catch (error) {
+        passwordStatus.textContent = errorText(error);
+        if (error.message === "blogSessionExpired") { passwordDialog.close(); login(errorText(error)); }
+      } finally {
+        passwordSave.disabled = passwordCancel.disabled = newPassword.disabled = confirmPassword.disabled = false; setBusy(false);
+      }
+    } }, [field("new-password", newPassword, t("writer.newPassword")),
+      field("confirm-password", confirmPassword, t("writer.confirmPassword")),
+      el("p", { class: "writer-help" }, t("writer.passwordHelp")), passwordStatus,
+      el("div", { class: "writer-actions" }, [passwordCancel, passwordSave])]);
+    passwordDialog.append(el("h2", { id: "writer-password-heading" }, t("writer.changePassword")), passwordForm);
+    passwordDialog.addEventListener("cancel", event => { if (busy) event.preventDefault(); });
+    passwordDialog.addEventListener("close", () => { newPassword.value = confirmPassword.value = ""; passwordStatus.textContent = ""; });
+    const changePassword = el("button", { type: "button", class: "update-account-button", onClick: () => {
+      if (busy) return;
+      checkpoint(); passwordDialog.showModal(); newPassword.focus();
+    } }, t("writer.changePassword"));
     const signOut = el("button", { type: "button", class: "update-account-button", onClick: async () => {
       if (busy) return;
       await signOutOwner(); login(); onChange();
     } }, t("writer.signOut"));
-    actions.push(...Object.values(photoButtons), saveButton, publishButton, unpublishButton, previewButton, deleteButton, deleteCancel, deleteConfirm, newButton, signOut);
+    actions.push(...Object.values(photoButtons), saveButton, publishButton, unpublishButton, previewButton, deleteButton, deleteCancel, deleteConfirm, newButton, changePassword, signOut);
     function updateActions() {
       saveButton.textContent = t(current.published ? "writer.saveChanges" : "writer.save");
       saveButton.className = `btn ${current.published ? "btn-primary" : "btn-secondary"}`;
@@ -224,8 +256,9 @@ export function renderBlogWriter({ postId = null, onChange = () => {} } = {}) {
         el("div", { class: "writer-field-row" }, [field("title-en", titles.en, t("writer.titleEn")), field("title-es", titles.es, t("writer.titleEs"))]),
         field("tags", tags), el("div", { class: "writer-field-row" }, [field("slug", slug), field("date", date)]), field("source", source)]),
     );
-    content.append(el("div", { class: "writer-account" }, [newButton, signOut]), status, form, preview,
-      el("details", { class: "update-manage" }, [el("summary", {}, t("writer.choose")), field("choose", selector)]), deleteDialog);
+    content.append(el("div", { class: "writer-account" }, [newButton,
+      el("div", { class: "update-account-actions" }, [changePassword, signOut])]), status, form, preview,
+      el("details", { class: "update-manage" }, [el("summary", {}, t("writer.choose")), field("choose", selector)]), deleteDialog, passwordDialog);
     updateSelector(postId || ""); selectPost(known.has(postId) ? postId : ""); onChange();
   }
   content.appendChild(el("p", { role: "status" }, t("writer.checking")));

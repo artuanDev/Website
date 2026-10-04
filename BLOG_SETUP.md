@@ -9,7 +9,7 @@ Updates is a casual feed for quick notes, things you're working on, interesting 
 - Dashboard: https://supabase.com/dashboard/project/xhvydebwlnixpyehzcvp.
 - The owner account is created, confirmed, and activated. Owner-specific credentials are in the gitignored local `.env`.
 - The project URL and publishable key are configured in local env files and GitHub Pages Actions variables. Env files stay untracked. GitHub Pages receives website updates; the existing Vercel deployment remains available with automatic Git deployments disabled.
-- The owner password is saved as `BLOG_OWNER_INITIAL_PASSWORD` in the **gitignored local `.env` only**. It is not a `VITE_` variable and is not included in the browser build. Use it with the owner email after clicking **+** on Updates. Set a personal password through Supabase user management when ready, and update or remove the local password afterward.
+- The initial owner password is saved as `BLOG_OWNER_INITIAL_PASSWORD` in the **gitignored local `.env` only**. It is not a `VITE_` variable and is not included in the browser build. Use it with the owner email after clicking **+** on Updates. Then choose **Change password**, enter and confirm your personal password, and click **Save password**. Remove the obsolete initial password from local `.env` afterward.
 - The schema is installed. Updates starts empty; the owner writes their own posts. All 15 database policy checks passed, and both security and performance advisors reported no findings.
 - `node supabase/tests/live-blog-smoke.mjs` explicitly verifies real owner sign-in, membership, draft privacy, publication, unpublication, and token refresh. It deletes its temporary post and signs out afterward. It needs the owner credentials in local `.env`.
 
@@ -36,7 +36,7 @@ Updates is a casual feed for quick notes, things you're working on, interesting 
 6. Set the same two values for your production host. On **GitHub Pages**, add repository **Settings → Secrets and variables → Actions → Variables** named `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`; the workflow already reads them. Rebuild/redeploy GitHub Pages after setting them. The legacy Vercel deployment is retained without new website deployments. On another static host, set these variables during its build.
 7. Open **Updates → +**. Sign in using your owner account. The site remembers your session on that browser, refreshes it as needed, and checks your owner membership when opening the inline editor.
 
-Until this setup is complete, visitors can read the bundled caustics post and use all tag filters; the writing page explains that account setup is pending. There is no pretend login or browser-only publishing.
+Until this setup is complete, Updates stays empty; the composer explains that account setup is pending. There is no pretend login or browser-only publishing.
 
 ## Share an update
 
@@ -45,12 +45,11 @@ Until this setup is complete, visitors can read the bundled caustics post and us
 - Check **Pin to top** to keep the update above unpinned posts. Pins are shared across both languages. Edit the update and uncheck it to return to date order.
 - **More options** contains optional English and Spanish titles, tags, dates and links. There is no automatic translation or copying between versions. Visitors see their selected language, or the other original version if theirs is empty. The URL name stays fixed after saving a post to the database.
 - Separate paragraphs with blank lines. Use `## Heading`, `**bold**`, inline backticks for code, or fenced code blocks. Raw HTML is displayed as text.
-- Choose an image, add its description/caption, and click **Add image**. It uploads to Supabase and is inserted into the body. The first upload also becomes the cover if you have not set one.
 - **Preview** shows the update, **Save draft** keeps it private, and **Post update** makes it public. For a published entry, **Save changes** updates it and **Unpublish to draft** hides it from visitors.
 - Signed-in owners can use **Edit** beside an update or open **Your updates** in the composer to choose a saved post or draft. Use **New update** to start another note.
 - To remove a saved post, click **Delete update** and confirm **Delete permanently**. Cancel leaves it unchanged. Deletion removes the post from the database and its backup on this device; uploaded images remain available.
 
-Unsaved edits are backed up per post and owner account in that browser, including when switching the site's language. This is recovery storage; saving and publishing use the shared database. Sign out after using a shared computer. To change or recover the owner's password, use Supabase's user management.
+Unsaved edits are backed up per post and owner account in that browser, including when switching the site's language. This is recovery storage; saving and publishing use the shared database. Sign out after using a shared computer. To change your password, open **Updates → + → Change password** after signing in. The password form sends the new password directly to Supabase Auth and clears it when closed; it never adds it to post backups or browser session storage. If you cannot sign in, recover the account through Supabase's user management.
 
 ## Validation
 

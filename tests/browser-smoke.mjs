@@ -123,7 +123,7 @@ try {
     define: { "import.meta.env.VITE_SUPABASE_URL": JSON.stringify("https://blog.test"), "import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY": JSON.stringify("sb_publishable_test") } });
   await vite.listen();
   await command("Page.addScriptToEvaluateOnNewDocument", { source: `
-    window.mockPosts = [${JSON.stringify(initial)}]; window.mockRefreshes = 0;
+    window.mockPosts = [${JSON.stringify(initial)}]; window.mockRefreshes = 0; window.mockPasswordUpdates = 0;
     const originalFetch = window.fetch.bind(window);
     window.fetch = async (url, options = {}) => {
       if (!String(url).startsWith('https://blog.test')) return originalFetch(url, options);
@@ -136,6 +136,14 @@ try {
         return reply({access_token:isOwner?'owner-token':'reader-token',refresh_token:'refresh',expires_at:Math.floor(Date.now()/1000)+(input.refresh_token?3600:30),user:{id:isOwner?'owner-id':'reader-id',email:input.email || 'owner@example.com'}});
       }
       if(path.pathname==='/auth/v1/logout') return reply({});
+      if(path.pathname==='/auth/v1/user' && options.method==='PUT') {
+        if(options.headers.Authorization!=='Bearer owner-token') return reply({},403);
+        const input=JSON.parse(options.body);
+        if(Object.keys(input).join(',')!=='password' || input.password!=='test-new-password-123') return reply({},400);
+        window.mockPasswordUpdates++;
+        if(window.mockPasswordFailure) return reply({code:'weak_password',message:'Password is too weak'},422);
+        return reply({id:'owner-id',email:'owner@example.com'});
+      }
       if(path.pathname==='/rest/v1/site_owners') return reply(options.headers.Authorization==='Bearer owner-token'?[{user_id:'owner-id'}]:[]);
       if(path.pathname==='/rest/v1/blog_posts') {
         if(options.method==='DELETE') {
@@ -188,6 +196,34 @@ try {
   await fill("writer-body-en", "First paragraph.\n\n## Progress\n\nA second paragraph.");
   await fill("writer-body-es", "Estoy probando una cosa. Esta versión la escribí yo.");
   await fill("writer-title-es", "Avance de prueba");
+  // Password changes stay separate from posts and their recovery storage.
+  await click("Change password");
+  await wait("document.querySelector('.writer-password-dialog').open");
+  assert.equal(await evaluate("document.activeElement.id"), "writer-new-password");
+  await fill("writer-new-password", "test-new-password-123");
+  await fill("writer-confirm-password", "different-password-123");
+  await click("Save password");
+  await wait("document.querySelector('.writer-password-dialog .writer-status').textContent.includes(\"don't match\")");
+  assert.equal(await evaluate("window.mockPasswordUpdates"), 0, "mismatched passwords are never sent");
+  await click("Cancel", ".writer-password-dialog button");
+  await wait("!document.querySelector('.writer-password-dialog').open");
+  await wait("document.getElementById('writer-new-password').value === ''");
+  assert.equal(await evaluate("document.getElementById('writer-confirm-password').value"), "");
+  assert.equal(await evaluate("window.mockPasswordUpdates"), 0, "cancel does not change the password");
+  await click("Change password");
+  await fill("writer-new-password", "test-new-password-123");
+  await fill("writer-confirm-password", "test-new-password-123");
+  await evaluate("window.mockPasswordFailure=true");
+  await click("Save password");
+  await wait("document.querySelector('.writer-password-dialog .writer-status').textContent.includes('stronger password')");
+  assert.equal(await evaluate("document.querySelector('.writer-password-dialog').open"), true, "failed changes remain editable");
+  await evaluate("window.mockPasswordFailure=false");
+  await click("Save password");
+  await wait("document.querySelector('.writer-status').textContent.startsWith('Password changed.')");
+  await wait("document.getElementById('writer-new-password').value === ''");
+  assert.equal(await evaluate("document.querySelector('.writer-password-dialog').open"), false);
+  assert.equal(await evaluate("Object.values(localStorage).some(value=>value.includes('test-new-password-123'))"), false, "new password is not persisted in local storage");
+  assert.equal(await evaluate("document.getElementById('writer-body-en').value"), "First paragraph.\n\n## Progress\n\nA second paragraph.", "changing a password preserves the update");
   await click("ES", ".lang-option");
   await wait("!!document.querySelector('.writer-form')");
   assert.equal(await evaluate("document.getElementById('writer-title-en').value"), "Test progress update");
@@ -292,7 +328,7 @@ try {
   await click("Sign out"); await wait("!!document.querySelector('.writer-login')");
   assert.equal(await evaluate("localStorage.getItem('portfolio:owner-session')"), null);
   assert.deepEqual(errors, [], "no runtime errors");
-  console.log("PASS: manual English/Spanish versions, independent editing, one-click photos, drafts, pinned ordering and unpinning, note-only posting, preview, publish, unpublish, confirmed deletion and sign-out (mock API)");
+  console.log("PASS: manual English/Spanish versions, photos, drafts, pinning, publishing, confirmed deletion, password confirmation/cancellation/retry without storing passwords, and sign-out (mock API)");
   console.log(`Screenshots: ${artifacts}`);
 } finally {
   if (socket?.readyState === WebSocket.OPEN) socket.send(JSON.stringify({ id: 999999, method: "Browser.close" }));
