@@ -8,7 +8,7 @@
 
 const PROJECT_ROUTE = /^#\/project\/(.+)$/;
 const ARTICLE_ROUTE = /^#\/article\/(.+)$/;
-const BLOG_ROUTE = /^#\/blog\/(.+)$/;
+const BLOG_ROUTE = /^#\/(?:updates|blog)\/(.+)$/;
 const RECOMMENDATION_ROUTE = /^#\/recommendation\/(.+)$/;
 const SECTION_ROUTE = /^#\/([a-z]+)$/;
 
@@ -18,7 +18,7 @@ export const SECTION_IDS = [
   "education",
   "portfolio",
   "articles",
-  "blog",
+  "updates",
   "recommendations",
   "skills",
   "contact",
@@ -36,7 +36,12 @@ export function parseRoute(hash) {
   const blogMatch = BLOG_ROUTE.exec(hash);
   if (blogMatch) return { name: "blogPost", slug: decodeURIComponent(blogMatch[1]) };
 
-  if (hash === "#/write") return { name: "writer" };
+  if (hash === "#/write") return { name: "section", section: "updates", compose: true };
+  if (hash === "#/blog") return { name: "section", section: "updates" };
+  if (hash.startsWith("#/updates?")) {
+    const params = new URLSearchParams(hash.slice(hash.indexOf("?") + 1));
+    return { name: "section", section: "updates", compose: params.has("compose") || params.has("edit"), postId: params.get("edit") };
+  }
 
   const recommendationMatch = RECOMMENDATION_ROUTE.exec(hash);
   if (recommendationMatch) return { name: "recommendation", slug: decodeURIComponent(recommendationMatch[1]) };
@@ -67,7 +72,7 @@ export function navigateToArticle(slug) {
 }
 
 export function navigateToBlogPost(slug) {
-  window.location.hash = `#/blog/${encodeURIComponent(slug)}`;
+  window.location.hash = `#/updates/${encodeURIComponent(slug)}`;
 }
 
 export function navigateToRecommendation(slug) {

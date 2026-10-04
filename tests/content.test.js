@@ -7,6 +7,16 @@ import projects from "../src/data/projects.js";
 import articles from "../src/data/articles.js";
 import en from "../src/data/i18n/en.js";
 import es from "../src/data/i18n/es.js";
+import { parseRoute } from "../src/lib/router.js";
+
+test("Updates integrates composing and preserves old blog links", () => {
+  assert.deepEqual(parseRoute("#/updates"), { name: "section", section: "updates" });
+  assert.equal(parseRoute("#/updates?compose").compose, true);
+  assert.equal(parseRoute("#/updates?edit=hello").postId, "hello");
+  assert.deepEqual(parseRoute("#/blog"), { name: "section", section: "updates" });
+  assert.deepEqual(parseRoute("#/write"), { name: "section", section: "updates", compose: true });
+  assert.deepEqual(parseRoute("#/blog/hello"), parseRoute("#/updates/hello"));
+});
 
 test("engine tags group versions and aliases without merging unrelated tags", () => {
   assert.equal(canonicalTag("Unity 6"), "Unity");

@@ -2,7 +2,7 @@ import { el, clear } from "../lib/dom.js";
 import { t, getLang } from "../lib/i18n.js";
 import { isBlogConfigured, getOwner, signInOwner, signOutOwner, listOwnerPosts, savePost, deletePost, uploadPostImage } from "../lib/blogApi.js";
 import { parseBlogBody, serializeBlogBody } from "../lib/blogMarkdown.js";
-import { renderWritingDetail } from "./articleDetail.js";
+import { renderUpdate } from "./updatePost.js";
 
 const ERROR_KEYS = new Set(["blogNotConfigured", "blogSessionExpired", "blogNotOwner", "blogRequestFailed", "blogInvalidImage"]);
 const errorText = (error) => t(`writer.errors.${ERROR_KEYS.has(error.message) ? error.message : "generic"}`);
@@ -15,14 +15,14 @@ function field(key, node) {
   return el("div", { class: "writer-field" }, [el("label", { for: id }, t(`writer.${key}`)), node]);
 }
 
-export function renderBlogWriter() {
+export function renderBlogWriter({ postId = null, onChange = () => {} } = {}) {
   const content = el("div");
-  const section = el("section", { class: "section blog-writer" }, el("div", { class: "section-inner" }, [
-    el("a", { class: "back-link", href: "#/blog" }, `← ${t("blogDetail.back")}`),
-    el("h1", { class: "section-heading" }, t("writer.heading")),
-    el("p", { class: "section-subheading" }, t("writer.subheading")),
+  const heading = el("h2", {}, t("writer.heading"));
+  const section = el("div", { class: "blog-writer update-composer" }, [
+    el("div", { class: "update-composer-heading" }, [heading,
+      el("a", { href: "#/updates", class: "update-composer-close" }, t("writer.close"))]),
     content,
-  ]));
+  ]);
 
   if (!isBlogConfigured) {
     content.appendChild(el("p", { class: "article-note", role: "status" }, t("writer.setup")));
@@ -59,7 +59,7 @@ export function renderBlogWriter() {
     const preview = el("div", { class: "writer-preview", hidden: "" });
     const title = el("input", { type: "text", maxlength: "160" });
     const summary = el("textarea", { rows: "3", maxlength: "600" });
-    const body = el("textarea", { rows: "18", "aria-describedby": "writer-body-help" });
+    const body = el("textarea", { rows: "6", placeholder: t("writer.bodyPlaceholder"), "aria-describedby": "writer-body-help" });
     const slug = el("input", { type: "text", pattern: "[a-z0-9]+(-[a-z0-9]+)*", maxlength: "100" });
     const date = el("input", { type: "date" });
     const tags = el("input", { type: "text", placeholder: "Unity, Shaders, Water" });
@@ -75,23 +75,26 @@ export function renderBlogWriter() {
       current.tags = [...new Set(tags.value.split(",").map((tag) => tag.trim()).filter(Boolean))];
       current.thumb = cover.value.trim();
       current.links = { ...current.links, linkedin: source.value.trim() };
-      current.i18n[writingLang] = { title: title.value.trim(), summary: summary.value.trim(), kicker: writingLang === "es" ? "Trabajo en progreso" : "Work in progress",
+      const blocks = parseBlogBody(body.value);
+      const note = blocks.filter(block => block.text).map(block => block.text).join(" ").replace(/\s+/g, " ").trim();
+      current.autoTitle = !title.value.trim();
+      current.i18n[writingLang] = { title: title.value.trim() || note.slice(0, 90) || t("blog.label"), summary: summary.value.trim() || note.slice(0, 180), kicker: t("blog.label"),
         displayDate: date.value ? new Date(`${date.value}T12:00:00`).toLocaleDateString(writingLang, { year: "numeric", month: "long", day: "numeric" }) : "" };
-      current.story[writingLang] = { eyebrow: writingLang === "es" ? "Trabajo en progreso" : "Work in progress", blocks: parseBlogBody(body.value) };
+      current.story[writingLang] = { eyebrow: t("blog.label"), blocks };
       current.readingMinutes = Math.max(1, Math.ceil(serializeBlogBody(current.story.en?.blocks).split(/\s+/).filter(Boolean).length / 200));
       return current;
     }
 
     function checkpoint() {
       capture();
-      backups[originalId || "__new"] = copy(current);
+      backups[originalId || "__new"] = { ...copy(current), _writingLang: writingLang };
       try { localStorage.setItem(backupKey, JSON.stringify(backups)); } catch { /* Saving to the database remains available. */ }
     }
 
     function populateLanguage() {
       language.value = writingLang;
       const text = current.i18n[writingLang] || {};
-      title.value = text.title || ""; summary.value = text.summary || "";
+      title.value = current.autoTitle ? "" : text.title || ""; summary.value = text.summary || "";
       body.value = serializeBlogBody(current.story[writingLang]?.blocks);
     }
 
@@ -102,13 +105,14 @@ export function renderBlogWriter() {
         id: "", published: false, date: today(), tags: [], thumb: "", links: {}, readingMinutes: 1,
         i18n: { en: {}, es: {} }, story: { en: { blocks: [] }, es: { blocks: [] } },
       });
-      writingLang = "en";
+      writingLang = restored?._writingLang || (id && !current.story[getLang()]?.blocks.length ? "en" : getLang());
       slug.value = current.id; slug.disabled = posts.some((post) => post.id === id);
       date.value = current.date; tags.value = current.tags.join(", ");
       cover.value = current.thumb || ""; source.value = current.links?.linkedin || "";
       populateLanguage();
       updateSaveActions();
-      status.textContent = t(restored ? "writer.restored" : "writer.localSave");
+      heading.textContent = t(id ? "writer.editHeading" : "writer.heading");
+      status.textContent = restored ? t("writer.restored") : "";
       form.hidden = false; preview.hidden = true;
     }
 
@@ -130,8 +134,8 @@ export function renderBlogWriter() {
     }
 
     function validate(post) {
-      if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(post.id) || !post.date || !post.tags.length ||
-        !post.i18n.en.title || !post.i18n.en.summary || !post.story.en?.blocks.length) throw new Error("validation");
+      if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(post.id) || !/^\d{4}-\d{2}-\d{2}$/.test(post.date) ||
+        !post.story.en?.blocks.length) throw new Error("validation");
       if ((post.thumb && !/^(?:https:\/\/|\/(?!\/))/.test(post.thumb)) ||
         (post.links?.linkedin && !/^https:\/\//.test(post.links.linkedin))) throw new Error("unsafeUrl");
     }
@@ -140,8 +144,15 @@ export function renderBlogWriter() {
       if (busy) return;
       checkpoint();
       const post = copy(current);
+      delete post._writingLang;
+      if (!post.id) post.id = `update-${Date.now().toString(36)}-${crypto.randomUUID().slice(0, 8)}`;
+      if (writingLang !== "en" && (!post.story.en?.blocks.length || post.englishFallback) && post.story[writingLang]?.blocks.length) {
+        post.i18n.en = copy(post.i18n[writingLang]); post.story.en = copy(post.story[writingLang]);
+        post.englishFallback = true;
+      }
+      if (writingLang === "en") delete post.englishFallback;
       // An unfinished Spanish translation falls back to the English post as a whole.
-      if (!post.i18n.es?.title || !post.i18n.es?.summary || !post.story.es?.blocks.length) {
+      if (!post.story.es?.blocks.length) {
         delete post.i18n.es; delete post.story.es;
       }
       try { validate(post); } catch (error) { status.textContent = t(`writer.${error.message}`); return; }
@@ -152,11 +163,13 @@ export function renderBlogWriter() {
         known.set(post.id, post);
         if (!posts.some((entry) => entry.id === post.id)) posts.push(post);
         delete backups[originalId || "__new"];
-        localStorage.setItem(backupKey, JSON.stringify(backups));
+        try { localStorage.setItem(backupKey, JSON.stringify(backups)); } catch { /* The database save succeeded. */ }
         current = copy(post); originalId = post.id;
+        slug.value = post.id;
         updateSelector(post.id);
         updateSaveActions();
         status.textContent = t(published ? "writer.live" : "writer.saved");
+        onChange();
       } catch (error) {
         status.textContent = errorText(error);
         if (error.message === "blogSessionExpired") login(errorText(error));
@@ -180,8 +193,9 @@ export function renderBlogWriter() {
       checkpoint(); clear(preview);
       const post = copy(current);
       post.i18n[getLang()] = post.i18n[writingLang];
+      post.story[getLang()] = post.story[writingLang];
       preview.appendChild(el("button", { type: "button", class: "btn btn-secondary", onClick: () => { form.hidden = false; preview.hidden = true; } }, t("writer.editing")));
-      preview.appendChild(renderWritingDetail(post, post.story[writingLang], "blog"));
+      preview.appendChild(renderUpdate(post, { preview: true }));
       form.hidden = true; preview.hidden = false;
     } }, t("writer.preview"));
     const saveButton = el("button", { type: "button", class: "btn btn-secondary", onClick: () => save(current.published) }, t("writer.save"));
@@ -205,6 +219,7 @@ export function renderBlogWriter() {
         deleteDialog.close();
         updateSelector(); selectPost("");
         status.textContent = t("writer.deleted");
+        onChange();
       } catch (error) {
         deleteDialog.close();
         status.textContent = errorText(error);
@@ -222,7 +237,7 @@ export function renderBlogWriter() {
     } }, t("writer.delete"));
     const newPostButton = el("button", { type: "button", class: "btn btn-primary writer-new-post", onClick: () => {
       if (busy) return;
-      checkpoint(); selector.value = ""; selectPost(""); title.focus();
+      checkpoint(); selector.value = ""; selectPost(""); body.focus();
     } }, t("writer.newPost"));
     actions.push(upload, previewButton, saveButton, publishButton, unpublishButton, deleteButton, deleteCancel, deleteConfirm, newPostButton);
 
@@ -231,27 +246,32 @@ export function renderBlogWriter() {
       publishButton.hidden = current.published;
       unpublishButton.hidden = !current.published;
       deleteButton.hidden = !posts.some((post) => post.id === originalId);
+      newPostButton.hidden = !originalId;
+      saveButton.className = `btn ${current.published ? "btn-primary" : "btn-secondary"}`;
     }
 
     language.addEventListener("change", () => { checkpoint(); writingLang = language.value; populateLanguage(); });
     selector.addEventListener("change", () => selectPost(selector.value));
     [title, summary, body, slug, date, tags, cover, source].forEach((control) => control.addEventListener("input", checkpoint));
     form.append(
-      field("language", language), field("title", title),
-      el("div", { class: "writer-field-row" }, [field("slug", slug), field("date", date)]),
-      field("tags", tags), field("summary", summary), field("body", body),
+      field("body", body),
       el("p", { id: "writer-body-help", class: "writer-help" }, t("writer.bodyHelp")),
-      el("div", { class: "writer-upload" }, [image, field("imageAlt", imageAlt), upload]),
-      field("cover", cover), field("source", source),
-      el("div", { class: "writer-actions" }, [previewButton, saveButton, publishButton, unpublishButton, deleteButton]),
+      el("details", { class: "writer-upload" }, [el("summary", {}, t("writer.addPhoto")), image, field("imageAlt", imageAlt), upload]),
+      el("details", { class: "update-options" }, [el("summary", {}, t("writer.options")),
+        field("language", language), field("title", title), field("tags", tags),
+        el("div", { class: "writer-field-row" }, [field("slug", slug), field("date", date)]),
+        field("summary", summary), field("cover", cover), field("source", source)]),
+      el("div", { class: "writer-actions" }, [publishButton, saveButton, previewButton, unpublishButton, deleteButton]),
     );
     content.append(
-      el("div", { class: "writer-account" }, [el("p", {}, owner.email), el("button", {
-        type: "button", class: "btn btn-secondary", onClick: async () => { if (busy) return; await signOutOwner(); login(); },
+      el("div", { class: "writer-account" }, [el("p", {}, t("writer.signedIn")), el("button", {
+        type: "button", class: "btn btn-secondary", onClick: async () => { if (busy) return; await signOutOwner(); login(); onChange(); },
       }, t("writer.signOut"))]),
-      newPostButton, field("choose", selector), status, form, preview, deleteDialog,
+      newPostButton, status, form, preview,
+      el("details", { class: "update-manage" }, [el("summary", {}, t("writer.choose")), field("choose", selector)]), deleteDialog,
     );
-    updateSelector(); selectPost("");
+    updateSelector(postId || ""); selectPost(known.has(postId) ? postId : "");
+    onChange();
   }
 
   content.appendChild(el("p", { role: "status" }, t("writer.checking")));

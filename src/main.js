@@ -33,7 +33,7 @@ const SECTION_RENDERERS = {
   education: renderEducation,
   portfolio: renderPortfolio,
   articles: renderArticles,
-  blog: renderBlog,
+  updates: renderBlog,
   recommendations: renderRecommendations,
   skills: renderSkills,
   contact: renderContact,
@@ -59,7 +59,7 @@ function handleBackgroundToggle() {
 function activeSectionFor(route) {
   if (route.name === "section") return route.section;
   if (route.name === "article") return "articles";
-  if (route.name === "blogPost" || route.name === "writer") return "blog";
+  if (route.name === "blogPost") return "updates";
   if (route.name === "project") return "portfolio";
   if (route.name === "recommendation") return "recommendations";
   return null;
@@ -75,7 +75,6 @@ function renderApp() {
     renderNav({
       activeSection: activeSectionFor(currentRoute),
       isHome: currentRoute.name === "home",
-      isWriter: currentRoute.name === "writer",
       onNavClick: handleNavClick,
       onLangSelect: handleLangSelect,
       isThreeBackgroundEnabled: isThreeBackgroundEnabled(),
@@ -95,19 +94,12 @@ function renderApp() {
   } else if (currentRoute.name === "blogPost") {
     main.appendChild(renderBlogPost(currentRoute.slug));
     observeHeroElement(null);
-  } else if (currentRoute.name === "writer") {
-    const mount = el("div");
-    main.appendChild(mount);
-    import("./sections/blogWriter.js").then(({ renderBlogWriter }) => {
-      if (mount.isConnected) mount.appendChild(renderBlogWriter());
-    });
-    observeHeroElement(null);
   } else if (currentRoute.name === "recommendation") {
     main.appendChild(renderRecommendationDetail(currentRoute.slug));
     observeHeroElement(null);
   } else if (currentRoute.name === "section") {
     const renderer = SECTION_RENDERERS[currentRoute.section];
-    main.appendChild(renderer());
+    main.appendChild(renderer(currentRoute));
     observeHeroElement(null);
   } else {
     // Home: hero landing only.

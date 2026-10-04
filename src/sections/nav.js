@@ -7,7 +7,7 @@ const NAV_ITEMS = [
   { id: "education", key: "nav.education" },
   { id: "portfolio", key: "nav.portfolio" },
   { id: "articles", key: "nav.articles" },
-  { id: "blog", key: "nav.blog" },
+  { id: "updates", key: "nav.blog" },
   { id: "recommendations", key: "nav.recommendations" },
   { id: "skills", key: "nav.skills" },
   { id: "contact", key: "nav.contact" },
@@ -16,7 +16,6 @@ const NAV_ITEMS = [
 export function renderNav({
   activeSection,
   isHome,
-  isWriter = false,
   onNavClick,
   onLangSelect,
   isThreeBackgroundEnabled,
@@ -27,7 +26,7 @@ export function renderNav({
     "ul",
     { class: "nav-links", id: "nav-links" },
     NAV_ITEMS.map((item) => {
-      const isActive = !isWriter && item.id === activeSection;
+      const isActive = item.id === activeSection;
       return el("li", {}, [
         el(
           "a",
@@ -46,12 +45,6 @@ export function renderNav({
       ]);
     })
   );
-
-  linksList.appendChild(el("li", {}, el("a", {
-    class: `nav-link nav-write-link${isWriter ? " active" : ""}`,
-    href: "#/write", "aria-current": isWriter ? "page" : null,
-    onClick: () => closeMobileMenu(),
-  }, t("nav.write"))));
 
   const toggleBtn = el(
     "button",
