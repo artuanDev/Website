@@ -7,8 +7,8 @@ The Blog, Portfolio and Articles pages have tag filters. The initial water-caust
 - Organization: **artuanDev's Org**.
 - Project: **artuanDev's Project** (`xhvydebwlnixpyehzcvp`), in London (`eu-west-2`).
 - Dashboard: https://supabase.com/dashboard/project/xhvydebwlnixpyehzcvp.
-- Owner: **artuangp@gmail.com**, created and confirmed through the Auth dashboard, then activated with `activate-owner.sql`.
-- The project URL and publishable key are configured in local `.env`, committed `.env.production`, and GitHub Pages Actions variables. The publishable key is intended for browser use.
+- The owner account is created, confirmed, and activated. Owner-specific credentials are in the gitignored local `.env`.
+- The project URL and publishable key are configured in local env files and GitHub Pages Actions variables. Env files stay untracked. GitHub Pages receives website updates; the existing Vercel deployment remains available with automatic Git deployments disabled.
 - The generated initial password is saved as `BLOG_OWNER_INITIAL_PASSWORD` in the **gitignored local `.env` only**. It is not a `VITE_` variable and is not included in the browser build. Use it with the owner email at `#/write`. Set a personal password through Supabase user management when ready, and update or remove the local initial password afterward.
 - The schema and initial published post are installed. All 15 database policy checks passed, and both security and performance advisors reported no findings.
 - `node supabase/tests/live-blog-smoke.mjs` explicitly verifies real owner sign-in, membership, draft privacy, publication, unpublication, and token refresh. It deletes its temporary post and signs out afterward. It needs the owner credentials in local `.env`.
@@ -18,7 +18,7 @@ The Blog, Portfolio and Articles pages have tag filters. The initial water-caust
 1. Create a Supabase project at https://supabase.com/dashboard.
 2. In its SQL Editor, run [supabase/schema.sql](supabase/schema.sql), then [supabase/seed.sql](supabase/seed.sql). The seed imports the first post with your two screenshots and preserves an existing version of that post.
 3. In **Authentication → Users → Add user**, create your account with your email and a password. Confirm it in the dashboard if necessary. There is no public sign-up flow on this site. You can also disable new signups in Supabase Auth settings.
-4. For the requested owner **artuangp@gmail.com**, run [supabase/activate-owner.sql](supabase/activate-owner.sql) in the SQL Editor. It locates that Auth user and grants owner access, and safely stops if the account does not exist. For a different owner email, copy that user's UUID and run:
+4. In [supabase/activate-owner.sql](supabase/activate-owner.sql), replace `OWNER_EMAIL_HERE` with the owner's email in the SQL Editor, then run it. It locates that Auth user and grants owner access, and safely stops if the account does not exist. Keep the filled-in version local. Alternatively, copy that user's UUID and run:
 
    ```sql
    insert into public.site_owners (user_id) values ('YOUR-USER-UUID');
@@ -33,7 +33,7 @@ The Blog, Portfolio and Articles pages have tag filters. The initial water-caust
    ```
 
    Use only the publishable key (or the legacy `anon` key). Secret keys and `service_role` keys bypass database permissions and must never go in these browser settings.
-6. Set the same two values for your production host. On **GitHub Pages**, add repository **Settings → Secrets and variables → Actions → Variables** named `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`; the workflow already reads them. On **Vercel**, set both under the project's environment variables. Rebuild/redeploy the site after setting them. On another static host, set these variables during its build.
+6. Set the same two values for your production host. On **GitHub Pages**, add repository **Settings → Secrets and variables → Actions → Variables** named `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`; the workflow already reads them. Rebuild/redeploy GitHub Pages after setting them. The legacy Vercel deployment is retained without new website deployments. On another static host, set these variables during its build.
 7. Open **Blog → Owner sign in / Write a post**. Sign in using your owner account. The site remembers your session on that browser, refreshes it as needed, and checks your owner membership when opening the editor.
 
 Until this setup is complete, visitors can read the bundled caustics post and use all tag filters; the writing page explains that account setup is pending. There is no pretend login or browser-only publishing.

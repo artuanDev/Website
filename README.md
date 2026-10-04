@@ -67,25 +67,16 @@ The key is public by design (it ships inside the built bundle) and only ever del
 inbox it was issued for. Without it, the form renders a short "not configured yet" note with a
 mailto link rather than a form that fails on submit.
 
-### Why there are two env files
+### Environment configuration
 
-Vite bakes env values into the bundle at **build time**, and `.env` is gitignored — so it never
-reaches the host that builds the deployed site. That is why the key lives in **two** places:
+Vite reads environment values at **build time**. All `.env*` files are local and gitignored,
+except `.env.example`, which contains empty placeholders.
 
-| File | Committed? | Used for |
-| --- | --- | --- |
-| `.env` | No (gitignored) | Local `npm run dev` |
-| `.env.production` | **Yes** | Production builds on the host (Vercel, Netlify, …) |
-
-`.env.production` is committed deliberately. A Web3Forms access key is a public token — it ships
-inside the JavaScript every visitor downloads, so it is readable from the live site either way. It
-is not a password and grants no account access; it only delivers mail to the inbox it was issued
-for. Committing it means the deploy needs no dashboard configuration.
-
-If you would rather not keep it in the repo, delete `.env.production` and instead add
-`VITE_WEB3FORMS_KEY` as an environment variable in your host's project settings (on Vercel:
-Settings → Environment Variables), then redeploy. **To rotate the key, update both `.env` and
-`.env.production`.**
+For GitHub Pages, configure `VITE_WEB3FORMS_KEY`, `VITE_SUPABASE_URL`, and
+`VITE_SUPABASE_PUBLISHABLE_KEY` as repository Actions variables. The deployment workflow reads
+these values when building. For another host, configure the same variables in that
+host's environment settings, then rebuild. Update the local configuration and host settings
+when rotating a key.
 
 Because there are no file uploads, the free Web3Forms plan covers this form. Submissions are sent
 as JSON with the sender's address set as `replyto`, so replying to the notification goes straight
@@ -93,6 +84,10 @@ back to them. A hidden `botcheck` honeypot field filters out bots; see
 `src/sections/quickContact.js`.
 
 ## Deploying
+
+GitHub Pages is the active deployment target: https://artuandev.github.io/Website/.
+The existing Vercel site at https://portfoliowebsite-ecru-six.vercel.app is retained as a legacy
+deployment. Its Git repository connection is disabled, so future pushes do not update it.
 
 This is a static site (no backend) — after `npm run build`, the `dist/` folder can be deployed to
 any static host (GitHub Pages, Netlify, Vercel, Cloudflare Pages, etc.). Because routing uses hash
