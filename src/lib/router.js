@@ -40,7 +40,7 @@ export function parseRoute(hash) {
   if (hash === "#/blog") return { name: "section", section: "updates" };
   if (hash.startsWith("#/updates?")) {
     const params = new URLSearchParams(hash.slice(hash.indexOf("?") + 1));
-    return { name: "section", section: "updates", compose: params.has("compose") || params.has("edit"), postId: params.get("edit") };
+    return { name: "section", section: "updates", compose: params.has("compose") || params.has("edit"), postId: params.get("edit"), publishedId: params.get("published") };
   }
 
   const recommendationMatch = RECOMMENDATION_ROUTE.exec(hash);

@@ -56,7 +56,8 @@ export function renderBlogWriter({ postId = null, onChange = () => {} } = {}) {
     try { backups = JSON.parse(localStorage.getItem(backupKey)) || {}; } catch { backups = {}; }
     let current, originalId = null, busy = false, uploadLanguage = "en";
     const selector = el("select");
-    const status = el("p", { class: "writer-status", role: "status", "aria-live": "polite" });
+    const status = el("p", { class: "writer-status", role: "status", "aria-live": "polite", tabindex: "-1" });
+    const publicationState = el("p", { class: "writer-publication-state" });
     const form = el("form", { class: "writer-form", onSubmit: event => event.preventDefault() });
     const preview = el("div", { class: "writer-preview", hidden: "" });
     const bodies = Object.fromEntries(LANGUAGES.map(language => [language, el("textarea", {
@@ -69,6 +70,12 @@ export function renderBlogWriter({ postId = null, onChange = () => {} } = {}) {
     const tags = el("input", { type: "text", placeholder: "Unity, Shaders, Water" });
     const source = el("input", { type: "url" });
     const actions = [];
+
+    function showStatus(message, state = "info") {
+      status.textContent = message; status.dataset.state = state;
+      status.setAttribute("role", state === "error" ? "alert" : "status");
+      if (state === "error") { status.scrollIntoView({ block: "center", behavior: "smooth" }); status.focus({ preventScroll: true }); }
+    }
 
     function storeBackups() {
       try { localStorage.setItem(backupKey, JSON.stringify(backups)); } catch { /* Database saves remain available. */ }
@@ -108,7 +115,7 @@ export function renderBlogWriter({ postId = null, onChange = () => {} } = {}) {
       source.value = current.links?.linkedin || ""; pinned.checked = current.pinned === true;
       slug.disabled = posts.some(post => post.id === id);
       heading.textContent = t(id ? "writer.editHeading" : "writer.heading");
-      status.textContent = restored ? t("writer.restored") : "";
+      showStatus(restored ? t("writer.restored") : "");
       form.hidden = false; preview.hidden = true; updateActions();
     }
     function updateSelector(selected = "") {
@@ -128,33 +135,39 @@ export function renderBlogWriter({ postId = null, onChange = () => {} } = {}) {
     }
     async function save(published) {
       if (busy) return;
-      checkpoint(); const post = copy(current);
-      if (!post.id) post.id = `update-${Date.now().toString(36)}-${crypto.randomUUID().slice(0, 8)}`;
-      try { validate(post); } catch (error) { status.textContent = t(`writer.${error.message}`); return; }
-      post.published = published; setBusy(true); status.textContent = t("writer.busy");
       try {
-        await savePost(post); known.set(post.id, post);
+        checkpoint();
+        if (!current.id) {
+          slug.value = `update-${Date.now().toString(36)}-${crypto.randomUUID().slice(0, 8)}`;
+          checkpoint(); // Reuse this ID if a timed-out request needs to be retried.
+        }
+        const post = copy(current); validate(post); post.published = published;
+        setBusy(true); showStatus(t(published ? "writer.publishing" : "writer.busy"), "busy");
+        if (published) (current.published ? saveButton : publishButton).textContent = t("writer.publishing");
+        else saveButton.textContent = t("writer.busy");
+        const saved = await savePost(post); known.set(saved.id, saved);
         if (!posts.some(entry => entry.id === post.id)) posts.push(post);
         delete backups[originalId || "__new"]; storeBackups();
-        current = copy(post); originalId = post.id; slug.value = post.id;
+        current = copy(saved); originalId = saved.id; slug.value = saved.id;
         updateSelector(post.id); heading.textContent = t("writer.editHeading");
-        status.textContent = t(published ? "writer.live" : "writer.saved"); onChange();
+        if (published) window.location.hash = `#/updates?published=${encodeURIComponent(saved.id)}`;
+        else { showStatus(t("writer.saved"), "success"); onChange(); }
       } catch (error) {
-        status.textContent = errorText(error);
+        showStatus(["validation", "unsafeUrl"].includes(error.message) ? t(`writer.${error.message}`) : errorText(error), "error");
         if (error.message === "blogSessionExpired") login(errorText(error));
       } finally { setBusy(false); }
     }
 
     const image = el("input", { type: "file", hidden: "", accept: "image/png,image/jpeg,image/webp,image/gif", onChange: async () => {
       const file = image.files[0]; if (!file || busy) return;
-      checkpoint(); setBusy(true); status.textContent = t("writer.uploading");
+      checkpoint(); setBusy(true); showStatus(t("writer.uploading"), "busy");
       try {
         const url = await uploadPostImage(file);
         const alt = file.name.replace(/[\[\]\r\n]/g, " ");
         bodies[uploadLanguage].value += `\n\n![${alt}](${url})`;
         if (!current.thumb) current.thumb = url;
-        checkpoint(); status.textContent = t("writer.photoAdded");
-      } catch (error) { status.textContent = errorText(error); }
+        checkpoint(); showStatus(t("writer.photoAdded"), "success");
+      } catch (error) { showStatus(errorText(error), "error"); }
       finally { image.value = ""; setBusy(false); }
     } });
     const photoButtons = Object.fromEntries(LANGUAGES.map(language => [language, el("button", {
@@ -174,14 +187,14 @@ export function renderBlogWriter({ postId = null, onChange = () => {} } = {}) {
     const deleteCancel = el("button", { type: "button", class: "btn btn-secondary", onClick: () => deleteDialog.close() }, t("writer.cancel"));
     const deleteConfirm = el("button", { type: "button", class: "btn btn-danger", onClick: async () => {
       if (busy || !originalId) return;
-      const id = originalId; setBusy(true); status.textContent = t("writer.deleting");
+      const id = originalId; setBusy(true); showStatus(t("writer.deleting"), "busy");
       try {
         await deletePost(id); known.delete(id);
         const index = posts.findIndex(post => post.id === id); if (index !== -1) posts.splice(index, 1);
         delete backups[id]; storeBackups(); deleteDialog.close(); updateSelector(); selectPost("");
-        status.textContent = t("writer.deleted"); onChange();
+        showStatus(t("writer.deleted"), "success"); onChange();
       } catch (error) {
-        deleteDialog.close(); status.textContent = errorText(error);
+        deleteDialog.close(); showStatus(errorText(error), "error");
         if (error.message === "blogSessionExpired") login(errorText(error));
       } finally { setBusy(false); }
     } }, t("writer.deleteConfirm"));
@@ -210,7 +223,7 @@ export function renderBlogWriter({ postId = null, onChange = () => {} } = {}) {
       passwordStatus.textContent = t("writer.passwordSaving");
       try {
         await changeOwnerPassword(newPassword.value);
-        passwordDialog.close(); status.textContent = t("writer.passwordChanged");
+        passwordDialog.close(); showStatus(t("writer.passwordChanged"), "success");
       } catch (error) {
         passwordStatus.textContent = errorText(error);
         if (error.message === "blogSessionExpired") { passwordDialog.close(); login(errorText(error)); }
@@ -234,8 +247,11 @@ export function renderBlogWriter({ postId = null, onChange = () => {} } = {}) {
     } }, t("writer.signOut"));
     actions.push(...Object.values(photoButtons), saveButton, publishButton, unpublishButton, previewButton, deleteButton, deleteCancel, deleteConfirm, newButton, changePassword, signOut);
     function updateActions() {
+      publicationState.textContent = t(current.published ? "writer.publicStatus" : "writer.privateStatus");
+      publicationState.dataset.published = String(current.published);
       saveButton.textContent = t(current.published ? "writer.saveChanges" : "writer.save");
       saveButton.className = `btn ${current.published ? "btn-primary" : "btn-secondary"}`;
+      publishButton.textContent = t("writer.publish");
       publishButton.hidden = current.published; unpublishButton.hidden = !current.published;
       deleteButton.hidden = !posts.some(post => post.id === originalId); newButton.hidden = !originalId;
     }
@@ -251,13 +267,15 @@ export function renderBlogWriter({ postId = null, onChange = () => {} } = {}) {
       ]))), image,
       el("p", { class: "writer-help" }, t("writer.bilingualHelp")),
       el("label", { class: "update-pin-control", for: "writer-pinned" }, [pinned, el("span", {}, t("writer.pin"))]),
-      el("div", { class: "writer-actions" }, [publishButton, saveButton, previewButton, unpublishButton, deleteButton]),
+      status,
+      el("div", { class: "writer-actions" }, [publishButton, saveButton, previewButton, unpublishButton, deleteButton,
+        el("a", { class: "btn btn-secondary", href: "#/updates" }, t("writer.backToUpdates"))]),
       el("details", { class: "update-options" }, [el("summary", {}, t("writer.options")),
         el("div", { class: "writer-field-row" }, [field("title-en", titles.en, t("writer.titleEn")), field("title-es", titles.es, t("writer.titleEs"))]),
         field("tags", tags), el("div", { class: "writer-field-row" }, [field("slug", slug), field("date", date)]), field("source", source)]),
     );
     content.append(el("div", { class: "writer-account" }, [newButton,
-      el("div", { class: "update-account-actions" }, [changePassword, signOut])]), status, form, preview,
+      el("div", { class: "update-account-actions" }, [changePassword, signOut])]), publicationState, form, preview,
       el("details", { class: "update-manage" }, [el("summary", {}, t("writer.choose")), field("choose", selector)]), deleteDialog, passwordDialog);
     updateSelector(postId || ""); selectPost(known.has(postId) ? postId : ""); onChange();
   }

@@ -18,8 +18,9 @@ function plusIcon() {
   svg.appendChild(path); return svg;
 }
 
-export function renderBlog({ compose = false, postId = null } = {}) {
+export function renderBlog({ compose = false, postId = null, publishedId = null } = {}) {
   const status = el("p", { class: "blog-load-status", role: "status" });
+  const notice = el("div", { class: "update-publish-notice", role: "status", "aria-live": "polite", tabindex: "-1", hidden: "" });
   const filters = el("div");
   const feed = el("div", { class: "updates-feed" });
   const composer = el("div", { class: "updates-composer-mount" });
@@ -29,12 +30,25 @@ export function renderBlog({ compose = false, postId = null } = {}) {
         el("div", {}, [el("h1", { class: "section-heading" }, t("blog.heading")), el("p", { class: "section-subheading" }, t("blog.subheading"))]),
         el("a", { class: "updates-add", href: "#/updates?compose", "aria-label": t("blog.write"), title: t("blog.write") }, plusIcon()),
       ]),
-      composer, status, filters, feed,
+      notice, composer, status, filters, feed,
     ]));
   let owner = null;
   let revision = 0;
-  function show(posts) {
+  function show(posts, loaded = false) {
     clear(filters);
+    if (publishedId && loaded) {
+      const published = posts.some(post => post.id === publishedId && post.published);
+      clear(notice);
+      notice.dataset.state = published ? "success" : "error";
+      notice.setAttribute("role", published ? "status" : "alert");
+      notice.append(el("strong", {}, t(published ? "writer.live" : "writer.publishUnconfirmed")),
+        el("div", { class: "update-publish-links" }, [
+          published ? el("a", { href: `#/updates/${encodeURIComponent(publishedId)}` }, t("writer.viewUpdate")) : null,
+          el("a", { href: `#/updates?edit=${encodeURIComponent(publishedId)}` }, t("blog.edit")),
+        ]));
+      notice.hidden = false;
+      notice.focus({ preventScroll: true });
+    } else notice.hidden = true;
     const ordered = orderUpdates(posts);
     function showFeed(tag) {
       clear(feed);
@@ -52,7 +66,7 @@ export function renderBlog({ compose = false, postId = null } = {}) {
     try {
       const [posts, account] = await Promise.all([listPublishedPosts(), getOwner().catch(() => null)]);
       if (!section.isConnected || requestRevision !== revision) return;
-      owner = account; status.textContent = ""; show(posts);
+      owner = account; status.textContent = ""; show(posts, true);
     } catch { if (requestRevision === revision) status.textContent = t("blog.loadError"); }
   }
   show(isBlogConfigured ? [] : blogPosts);

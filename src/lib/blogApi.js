@@ -105,11 +105,14 @@ export async function listOwnerPosts() {
 }
 
 export async function savePost(post) {
-  return request("/rest/v1/blog_posts?on_conflict=id", {
+  const rows = await request("/rest/v1/blog_posts?on_conflict=id", {
     token: await accessToken(), method: "POST",
     headers: { "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=representation" },
     body: JSON.stringify({ id: post.id, published: post.published, payload: post, updated_at: new Date().toISOString() }),
   });
+  const saved = rows?.find(row => row.payload?.id === post.id && row.payload.published === post.published);
+  if (!saved) throw new Error("blogRequestFailed");
+  return saved.payload;
 }
 
 export async function deletePost(id) {

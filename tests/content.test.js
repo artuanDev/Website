@@ -22,6 +22,8 @@ test("Updates integrates composing and preserves old blog links", () => {
   assert.deepEqual(parseRoute("#/updates"), { name: "section", section: "updates" });
   assert.equal(parseRoute("#/updates?compose").compose, true);
   assert.equal(parseRoute("#/updates?edit=hello").postId, "hello");
+  assert.equal(parseRoute("#/updates?published=hello").publishedId, "hello");
+  assert.equal(parseRoute("#/updates?published=hello").compose, false);
   assert.deepEqual(parseRoute("#/blog"), { name: "section", section: "updates" });
   assert.deepEqual(parseRoute("#/write"), { name: "section", section: "updates", compose: true });
   assert.deepEqual(parseRoute("#/blog/hello"), parseRoute("#/updates/hello"));
