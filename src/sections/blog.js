@@ -12,7 +12,7 @@ export function renderBlog() {
     clear(mount);
     const section = renderWritingCollection(posts, "blog");
     section.querySelector(".section-inner").prepend(
-      el("a", { class: "back-link blog-owner-link", href: "#/write" }, t("blog.write"))
+      el("a", { class: "btn btn-primary blog-owner-link", href: "#/write" }, t("blog.write"))
     );
     section.querySelector(".section-inner").appendChild(status);
     mount.appendChild(section);

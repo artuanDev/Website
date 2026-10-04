@@ -138,6 +138,15 @@ try {
       if(path.pathname==='/auth/v1/logout') return reply({});
       if(path.pathname==='/rest/v1/site_owners') return reply(options.headers.Authorization==='Bearer owner-token'?[{user_id:'owner-id'}]:[]);
       if(path.pathname==='/rest/v1/blog_posts') {
+        if(options.method==='DELETE') {
+          if(options.headers.Authorization!=='Bearer owner-token') return reply({},403);
+          if(window.mockDeleteFailure) return reply({},503);
+          const id=path.searchParams.get('id')?.slice(3);
+          const removed=window.mockPosts.filter(post=>post.id===id);
+          window.mockPosts=window.mockPosts.filter(post=>post.id!==id);
+          window.mockDeletes=(window.mockDeletes||0)+1;
+          return reply(removed.map(payload=>({payload})));
+        }
         if(options.method==='POST') {
           if(options.headers.Authorization!=='Bearer owner-token') return reply({},403);
           const post = JSON.parse(options.body).payload;
@@ -166,6 +175,10 @@ try {
   await click("Sign in as owner");
   await wait("!!document.querySelector('.writer-form')");
   assert.equal(await evaluate("window.mockRefreshes"), 1);
+  assert.ok(await evaluate("!!document.querySelector('.nav-write-link[href=\"#/write\"]')"), "writing is accessible from navigation");
+  await click("New post", ".writer-new-post");
+  assert.equal(await evaluate("document.getElementById('writer-title').value"), "");
+  assert.equal(await evaluate("Array.from(document.querySelectorAll('.writer-form button')).find(el=>el.textContent==='Delete post').hidden"), true, "unsaved new entries have no delete action");
   await fill("writer-title", "Test progress update"); await fill("writer-slug", "test-progress");
   await fill("writer-tags", "Unity, Python"); await fill("writer-summary", "A real shared post test.");
   await fill("writer-body", "First paragraph.\n\n## Progress\n\nA second paragraph.");
@@ -203,10 +216,37 @@ try {
   await click("Unpublish to draft"); await wait("document.querySelector('.writer-status').textContent.startsWith('Draft saved')");
   await route("#/blog/test-progress", ".article-not-found");
   await route("#/write", ".writer-form");
+  await evaluate("{ const el=document.getElementById('writer-choose'); el.value='test-progress'; el.dispatchEvent(new Event('change')); }");
+  await click("Delete post");
+  await wait("document.querySelector('.writer-delete-dialog').open");
+  await click("Cancel");
+  assert.equal(await evaluate("window.mockDeletes||0"), 0, "cancel does not delete");
+  await evaluate("window.mockDeleteFailure=true");
+  await click("Delete post"); await click("Delete permanently");
+  await wait("!document.querySelector('.writer-delete-dialog').open");
+  assert.ok(await evaluate("window.mockPosts.some(post=>post.id==='test-progress')"), "failed deletion preserves the post");
+  await evaluate("window.mockDeleteFailure=false");
+  await click("ES", ".lang-option"); await wait("!!document.querySelector('.writer-form')");
+  await evaluate("{ const el=document.getElementById('writer-choose'); el.value='test-progress'; el.dispatchEvent(new Event('change')); }");
+  await click("Eliminar entrada"); await click("Eliminar permanentemente");
+  await wait("document.querySelector('.writer-status').textContent==='Entrada eliminada.'");
+  assert.equal(await evaluate("window.mockPosts.some(post=>post.id==='test-progress')"), false, "confirmed deletion removes the post");
+  assert.equal(await evaluate("Array.from(document.getElementById('writer-choose').options).some(option=>option.value==='test-progress')"), false, "deleted post disappears from the selector");
+  assert.equal(await evaluate("Object.values(JSON.parse(localStorage.getItem('portfolio:post-backups:owner-id'))).some(post=>post.id==='test-progress')"), false, "deleted post backup is removed");
+  await click("EN", ".lang-option"); await wait("!!document.querySelector('.writer-form')");
+  await evaluate("{ const el=document.getElementById('writer-choose'); el.value='faking-water-caustics'; el.dispatchEvent(new Event('change')); }");
+  await click("New post", ".writer-new-post");
+  assert.equal(await evaluate("document.getElementById('writer-choose').value"), "", "new-post button opens a new draft from an existing post");
+  await evaluate("{ const el=document.getElementById('writer-choose'); el.value='faking-water-caustics'; el.dispatchEvent(new Event('change')); }");
+  await click("Delete post"); await click("Delete permanently");
+  await wait("document.querySelector('.writer-status').textContent==='Post deleted.'");
+  await route("#/blog", ".collection-empty");
+  await route("#/write", ".writer-form");
+  assert.equal(await evaluate("document.getElementById('writer-choose').options.length"), 1, "deleted seed is not offered again");
   await click("Sign out"); await wait("!!document.querySelector('.writer-login')");
   assert.equal(await evaluate("localStorage.getItem('portfolio:owner-session')"), null);
   assert.deepEqual(errors, [], "no runtime errors");
-  console.log("PASS: owner recognition, non-owner rejection, token refresh, unsaved edit recovery, image upload, preview, private draft, publish, public edit, unpublish, sign-out and /Website/ base paths (mock API)");
+  console.log("PASS: owner recognition, non-owner rejection, token refresh, unsaved edit recovery, image upload, preview, private draft, publish, public edit, unpublish, new-post button, deletion confirmation/cancel/error handling, Spanish controls, sign-out and /Website/ base paths (mock API)");
   console.log(`Screenshots: ${artifacts}`);
 } finally {
   if (socket?.readyState === WebSocket.OPEN) socket.send(JSON.stringify({ id: 999999, method: "Browser.close" }));

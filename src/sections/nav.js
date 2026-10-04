@@ -16,6 +16,7 @@ const NAV_ITEMS = [
 export function renderNav({
   activeSection,
   isHome,
+  isWriter = false,
   onNavClick,
   onLangSelect,
   isThreeBackgroundEnabled,
@@ -26,7 +27,7 @@ export function renderNav({
     "ul",
     { class: "nav-links", id: "nav-links" },
     NAV_ITEMS.map((item) => {
-      const isActive = item.id === activeSection;
+      const isActive = !isWriter && item.id === activeSection;
       return el("li", {}, [
         el(
           "a",
@@ -45,6 +46,12 @@ export function renderNav({
       ]);
     })
   );
+
+  linksList.appendChild(el("li", {}, el("a", {
+    class: `nav-link nav-write-link${isWriter ? " active" : ""}`,
+    href: "#/write", "aria-current": isWriter ? "page" : null,
+    onClick: () => closeMobileMenu(),
+  }, t("nav.write"))));
 
   const toggleBtn = el(
     "button",

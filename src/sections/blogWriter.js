@@ -1,7 +1,6 @@
 import { el, clear } from "../lib/dom.js";
 import { t, getLang } from "../lib/i18n.js";
-import { blogDrafts } from "../data/blog.js";
-import { isBlogConfigured, getOwner, signInOwner, signOutOwner, listOwnerPosts, savePost, uploadPostImage } from "../lib/blogApi.js";
+import { isBlogConfigured, getOwner, signInOwner, signOutOwner, listOwnerPosts, savePost, deletePost, uploadPostImage } from "../lib/blogApi.js";
 import { parseBlogBody, serializeBlogBody } from "../lib/blogMarkdown.js";
 import { renderWritingDetail } from "./articleDetail.js";
 
@@ -50,8 +49,6 @@ export function renderBlogWriter() {
     if (!content.isConnected) return;
     clear(content);
     const known = new Map(posts.map((post) => [post.id, post]));
-    // Offer the bundled first entry for importing into the new database.
-    blogDrafts.forEach((post) => { if (!known.has(post.id)) known.set(post.id, post); });
     const backupKey = `portfolio:post-backups:${owner.id}`;
     let backups;
     try { backups = JSON.parse(localStorage.getItem(backupKey)) || {}; } catch { backups = {}; }
@@ -129,6 +126,7 @@ export function renderBlogWriter() {
       form.querySelectorAll("input, textarea, select, button").forEach((control) => { control.disabled = value; });
       if (!value) slug.disabled = posts.some((post) => post.id === originalId);
       selector.disabled = value;
+      if (!value) updateSaveActions();
     }
 
     function validate(post) {
@@ -189,12 +187,50 @@ export function renderBlogWriter() {
     const saveButton = el("button", { type: "button", class: "btn btn-secondary", onClick: () => save(current.published) }, t("writer.save"));
     const publishButton = el("button", { type: "button", class: "btn btn-primary", onClick: () => save(true) }, t("writer.publish"));
     const unpublishButton = el("button", { type: "button", class: "btn btn-secondary", onClick: () => save(false) }, t("writer.unpublish"));
-    actions.push(upload, previewButton, saveButton, publishButton, unpublishButton);
+    const deleteMessage = el("p");
+    const deleteDialog = el("dialog", { class: "writer-delete-dialog", "aria-labelledby": "writer-delete-heading", "aria-describedby": "writer-delete-message" });
+    deleteMessage.id = "writer-delete-message";
+    const deleteCancel = el("button", { type: "button", class: "btn btn-secondary", onClick: () => deleteDialog.close() }, t("writer.cancel"));
+    const deleteConfirm = el("button", { type: "button", class: "btn btn-danger", onClick: async () => {
+      if (busy || !originalId) return;
+      const id = originalId;
+      setBusy(true); status.textContent = t("writer.deleting");
+      try {
+        await deletePost(id);
+        known.delete(id);
+        const index = posts.findIndex((post) => post.id === id);
+        if (index !== -1) posts.splice(index, 1);
+        delete backups[id];
+        try { localStorage.setItem(backupKey, JSON.stringify(backups)); } catch { /* The database deletion succeeded. */ }
+        deleteDialog.close();
+        updateSelector(); selectPost("");
+        status.textContent = t("writer.deleted");
+      } catch (error) {
+        deleteDialog.close();
+        status.textContent = errorText(error);
+        if (error.message === "blogSessionExpired") login(errorText(error));
+      } finally { setBusy(false); }
+    } }, t("writer.deleteConfirm"));
+    deleteDialog.append(el("h2", { id: "writer-delete-heading" }, t("writer.delete")), deleteMessage,
+      el("div", { class: "writer-actions" }, [deleteCancel, deleteConfirm]));
+    deleteDialog.addEventListener("cancel", (event) => { if (busy) event.preventDefault(); });
+    const deleteButton = el("button", { type: "button", class: "btn btn-danger", onClick: () => {
+      if (busy || !originalId) return;
+      deleteMessage.textContent = t("writer.deleteQuestion").replace("{title}", known.get(originalId)?.i18n.en.title || originalId);
+      deleteDialog.showModal();
+      deleteCancel.focus();
+    } }, t("writer.delete"));
+    const newPostButton = el("button", { type: "button", class: "btn btn-primary writer-new-post", onClick: () => {
+      if (busy) return;
+      checkpoint(); selector.value = ""; selectPost(""); title.focus();
+    } }, t("writer.newPost"));
+    actions.push(upload, previewButton, saveButton, publishButton, unpublishButton, deleteButton, deleteCancel, deleteConfirm, newPostButton);
 
     function updateSaveActions() {
       saveButton.textContent = t(current.published ? "writer.saveChanges" : "writer.save");
       publishButton.hidden = current.published;
       unpublishButton.hidden = !current.published;
+      deleteButton.hidden = !posts.some((post) => post.id === originalId);
     }
 
     language.addEventListener("change", () => { checkpoint(); writingLang = language.value; populateLanguage(); });
@@ -207,13 +243,13 @@ export function renderBlogWriter() {
       el("p", { id: "writer-body-help", class: "writer-help" }, t("writer.bodyHelp")),
       el("div", { class: "writer-upload" }, [image, field("imageAlt", imageAlt), upload]),
       field("cover", cover), field("source", source),
-      el("div", { class: "writer-actions" }, [previewButton, saveButton, publishButton, unpublishButton]),
+      el("div", { class: "writer-actions" }, [previewButton, saveButton, publishButton, unpublishButton, deleteButton]),
     );
     content.append(
       el("div", { class: "writer-account" }, [el("p", {}, owner.email), el("button", {
         type: "button", class: "btn btn-secondary", onClick: async () => { if (busy) return; await signOutOwner(); login(); },
       }, t("writer.signOut"))]),
-      field("choose", selector), status, form, preview,
+      newPostButton, field("choose", selector), status, form, preview, deleteDialog,
     );
     updateSelector(); selectPost("");
   }

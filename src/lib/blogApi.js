@@ -97,6 +97,13 @@ export async function savePost(post) {
   });
 }
 
+export async function deletePost(id) {
+  const rows = await request(`/rest/v1/blog_posts?id=eq.${encodeURIComponent(id)}`, {
+    token: await accessToken(), method: "DELETE", headers: { Prefer: "return=representation" },
+  });
+  if (!rows?.length) throw new Error("blogRequestFailed");
+}
+
 export async function uploadPostImage(file) {
   if (!["image/jpeg", "image/png", "image/webp", "image/gif"].includes(file.type) || file.size > 10 * 1024 * 1024) {
     throw new Error("blogInvalidImage");

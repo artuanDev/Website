@@ -40,12 +40,13 @@ Until this setup is complete, visitors can read the bundled caustics post and us
 
 ## Write on the site
 
-- Choose **New post**, or pick an existing post from **Your posts**.
+- Open **Write** in the navigation or **Write a post** on the Blog page, then sign in as the owner. Click the **New post** button, or pick an existing post from **Your posts**.
 - Add a title, description, post date, a URL name such as `water-caustics-update`, and comma-separated tags such as `Unity, Shaders, Water`. The URL name stays fixed after saving a post to the database.
 - Write your English version first. Spanish is optional; an incomplete Spanish version falls back to the English post. Use **Writing language** to switch versions.
 - Separate paragraphs with blank lines. Use `## Heading`, `**bold**`, inline backticks for code, or fenced code blocks. Raw HTML is displayed as text.
 - Choose an image, add its description/caption, and click **Add image**. It uploads to Supabase and is inserted into the body. The first upload also becomes the cover if you have not set one.
 - Preview your post. **Save draft** keeps a new entry private. **Publish post** makes it public. For a published entry, **Save changes** updates the public post and **Unpublish to draft** hides it from visitors.
+- To remove a saved post, choose it from **Your posts**, click **Delete post**, and confirm **Delete permanently**. Cancel leaves it unchanged. Deletion removes the post from the database and its backup on this device; uploaded images remain available.
 
 Unsaved edits are backed up per post and owner account in that browser, including when switching the site's language. This is recovery storage; saving and publishing use the shared database. Sign out after using a shared computer. To change or recover the owner's password, use Supabase's user management.
 

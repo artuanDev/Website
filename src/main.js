@@ -75,6 +75,7 @@ function renderApp() {
     renderNav({
       activeSection: activeSectionFor(currentRoute),
       isHome: currentRoute.name === "home",
+      isWriter: currentRoute.name === "writer",
       onNavClick: handleNavClick,
       onLangSelect: handleLangSelect,
       isThreeBackgroundEnabled: isThreeBackgroundEnabled(),
